@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -17,7 +16,6 @@
     <!-- PDF & DOCX LIBRARIES -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
-    <!-- THE CORRECT, VERIFIED SCRIPT TAG AS PER YOUR INSTRUCTION -->
     <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0"></script>
 
     <!-- Custom Styles & Tailwind Config -->
@@ -316,21 +314,32 @@ Original Text:
                                 <i class="fas fa-chevron-down ms-2"></i>
                             </button>
                             <!-- Dropdown menu -->
-                            <div id="download-dropdown-menu" class="hidden absolute end-0 mt-2 z-10 w-44 bg-white rounded-lg shadow-lg dark:bg-gray-700">
+                            <div id="download-dropdown-menu" class="hidden absolute end-0 mt-2 z-10 w-56 bg-white rounded-lg shadow-lg dark:bg-gray-700">
                                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                                     <li>
                                         <a href="#" id="download-docx-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-word w-4 me-2"></i> As DOCX
+                                            <i class="fas fa-file-word w-4 me-2"></i> As DOCX (Original + Translated)
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#" id="download-pdf-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-pdf w-4 me-2"></i> As Reflowed PDF
+                                            <i class="fas fa-file-pdf w-4 me-2"></i> As Reflowed PDF (Original + Translated)
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#" id="download-txt-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT
+                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT (Original + Translated)
+                                        </a>
+                                    </li>
+                                    <li class="border-t my-1 dark:border-gray-600"></li>
+                                    <li>
+                                        <a href="#" id="download-pdf-translated-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <i class="fas fa-file-pdf w-4 me-2"></i> As PDF (Translated Only)
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" id="download-txt-translated-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT (Translated Only)
                                         </a>
                                     </li>
                                 </ul>
@@ -435,153 +444,64 @@ Original Text:
         
         Dropzone.autoDiscover = false;
 
-        // --- I18N DICTIONARY (omitted for brevity)
         const i18n = {
             en: {
-                // General
-                'pageTitle': 'PDF Translator',
-                'pageSubtitle': 'AI-Powered Document Translation',
-                'next': 'Next',
-                'back': 'Back',
-                'remove': 'Remove',
-                'clearMemory': 'Clear Translation Memory',
-                // Step Navigator
-                'step1Indicator': 'Step 1', 'step1Name': 'API Setup',
-                'step2Indicator': 'Step 2', 'step2Name': 'Add Content',
-                'step3Indicator': 'Step 3', 'step3Name': 'Translate',
-                // Step 1: API
-                'step1Title': 'Step 1: Configure Your API Key',
-                'step1Description': 'This tool uses the Gemini API. Please provide your API key to proceed. Your key is stored locally in your browser and is never sent to our servers.',
-                'selectApiKeyLabel': 'Select an API Key',
-                'addNewKeyTitle': 'Add a New Key',
-                'newKeyNameLabel': 'Key Name (e.g., "Personal", "Work")',
-                'newKeyValueLabel': 'API Key Value',
-                'addKeyBtn': 'Add Key',
-                'deleteKeyBtn': 'Delete Key',
-                'noKeysAdded': 'No keys added yet. Add one below.',
-                'getApiKeyLink': "Get your free key from <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a>.",
-                // Step 2: Content
-                'step2Title': 'Step 2: Add Your PDF Document',
-                'dropzone': "Drag & drop a PDF file",
-                'dropzoneOr': "or",
-                'dropzoneChoose': "Choose File",
-                'fileSelected': "File selected:",
-                // Step 3: Translate & Advanced Settings
-                'step3Title': 'Step 3: Finalize and Translate',
-                'targetLangLabel': 'Target Language',
-                'targetLangPlaceholder': 'e.g., Spanish, French, Japanese',
-                'advancedSettings': 'Advanced Settings',
-                'advancedWarning': 'Adjusting these settings can affect performance, cost, and quality. Proceed with caution.',
-                'modelLabel': 'AI Model',
-                'temperatureLabel': 'Temperature',
-                'chunkStrategyLabel': 'Chunking Strategy',
-                'chunkStrategyDefault': 'Default',
-                'chunkStrategyAuto': 'Automatic',
-                'chunkStrategyManual': 'Manual',
-                'chunkCountManualLabel': 'Number of Chunks',
-                'requestDelayLabel': 'Request Delay (ms)',
-                'requestDelayNote': 'Delay between each API request (e.g., 2000 for 30 RPM).',
-                'useProxyLabel': 'Use Proxy',
-                'customProxyLabel': 'Custom Proxy URL (Optional)',
-                'customProxyNote': 'Deploy your own proxy using <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a>.',
-                'promptSettingsTitle': 'Prompt & Separator Settings',
-                'customSeparatorLabel': 'Text Separator',
-                'customSeparatorNote': 'The string used to separate text lines. Use \\n for newlines.',
-                'translationToneLabel': 'Translation Tone',
-                'translationToneNote': 'e.g., formal, informal, humorous, dramatic.',
-                'customPromptLabel': 'Translation Prompt Template',
-                'customPromptNote': 'Use {LANG}, {TONE}, and {TEXT} as placeholders.',
-                'noCensorLabel': 'Add "uncensored" directive',
-                'noCensorNote': 'Appends a request to the prompt to not censor explicit content.',
-                'translateNow': 'Translate Now',
-                // Results Area
-                'progressTitle': 'Translation in Progress...',
-                'processingChunk': 'Processing chunk',
-                'progressComplete': 'Complete',
-                'progressEstimating': 'Estimating...',
-                'progressCalculating': 'Calculating...',
-                'progressRemaining': 'remaining',
-                'editTitle': 'Edit Your Translation',
-                'successTitle': 'Translation Complete!',
-                'successText': 'Your translated document is ready for editing and download.',
-                'errorTitle': 'An Error Occurred',
-                'startNew': 'Start New',
-                'downloadFile': 'Download File',
-                'retryFailed': 'Retry Failed Chunks:',
-                'retryButton': 'Retry Chunk',
-                'retryingButton': 'Retrying...',
-                'findReplace': 'Find/Replace',
-                'tableHeaderId': 'ID',
-                'tableHeaderOriginal': 'Original Text',
-                'tableHeaderTranslated': 'Translated Text (Editable)',
-                'tableHeaderAction': 'Action',
+                'pageTitle': 'PDF Translator', 'pageSubtitle': 'AI-Powered Document Translation', 'next': 'Next', 'back': 'Back', 'remove': 'Remove', 'clearMemory': 'Clear Translation Memory',
+                'step1Indicator': 'Step 1', 'step1Name': 'API Setup', 'step2Indicator': 'Step 2', 'step2Name': 'Add Content', 'step3Indicator': 'Step 3', 'step3Name': 'Translate',
+                'step1Title': 'Step 1: Configure Your API Key', 'step1Description': 'This tool uses the Gemini API. Please provide your API key to proceed. Your key is stored locally in your browser and is never sent to our servers.',
+                'selectApiKeyLabel': 'Select an API Key', 'addNewKeyTitle': 'Add a New Key', 'newKeyNameLabel': 'Key Name (e.g., "Personal", "Work")', 'newKeyValueLabel': 'API Key Value',
+                'addKeyBtn': 'Add Key', 'deleteKeyBtn': 'Delete Key', 'noKeysAdded': 'No keys added yet. Add one below.', 'getApiKeyLink': "Get your free key from <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a>.",
+                'step2Title': 'Step 2: Add Your PDF Document', 'dropzone': "Drag & drop a PDF file", 'dropzoneOr': "or", 'dropzoneChoose': "Choose File", 'fileSelected': "File selected:",
+                'step3Title': 'Step 3: Finalize and Translate', 'targetLangLabel': 'Target Language', 'targetLangPlaceholder': 'e.g., Spanish, French, Japanese',
+                'advancedSettings': 'Advanced Settings', 'advancedWarning': 'Adjusting these settings can affect performance, cost, and quality. Proceed with caution.',
+                'modelLabel': 'AI Model', 'temperatureLabel': 'Temperature', 'chunkStrategyLabel': 'Chunking Strategy', 'chunkStrategyDefault': 'Default', 'chunkStrategyAuto': 'Automatic', 'chunkStrategyManual': 'Manual',
+                'chunkCountManualLabel': 'Number of Chunks', 'requestDelayLabel': 'Request Delay (ms)', 'requestDelayNote': 'Delay between each API request (e.g., 2000 for 30 RPM).',
+                'useProxyLabel': 'Use Proxy', 'customProxyLabel': 'Custom Proxy URL (Optional)', 'customProxyNote': 'Deploy your own proxy using <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a>.',
+                'promptSettingsTitle': 'Prompt & Separator Settings', 'customSeparatorLabel': 'Text Separator', 'customSeparatorNote': 'The string used to separate text lines. Use \\n for newlines.',
+                'translationToneLabel': 'Translation Tone', 'translationToneNote': 'e.g., formal, informal, humorous, dramatic.', 'customPromptLabel': 'Translation Prompt Template', 'customPromptNote': 'Use {LANG}, {TONE}, and {TEXT} as placeholders.',
+                'noCensorLabel': 'Add "uncensored" directive', 'noCensorNote': 'Appends a request to the prompt to not censor explicit content.', 'translateNow': 'Translate Now',
+                'progressTitle': 'Translation in Progress...', 'processingChunk': 'Processing chunk', 'progressComplete': 'Complete', 'progressEstimating': 'Estimating...', 'progressCalculating': 'Calculating...', 'progressRemaining': 'remaining',
+                'editTitle': 'Edit Your Translation', 'successTitle': 'Translation Complete!', 'successText': 'Your translated document is ready for editing and download.', 'errorTitle': 'An Error Occurred',
+                'startNew': 'Start New', 'downloadFile': 'Download File', 'retryFailed': 'Retry Failed Chunks:', 'retryButton': 'Retry Chunk', 'retryingButton': 'Retrying...',
+                'findReplace': 'Find/Replace', 'tableHeaderId': 'ID', 'tableHeaderOriginal': 'Original Text', 'tableHeaderTranslated': 'Translated Text (Editable)', 'tableHeaderAction': 'Action',
                 'logTitle': 'Live Log', 'logCopy': 'Copy', 'logCopied': 'Copied!', 'logClear': 'Clear',
-                // Modals
-                'quotaModalTitle': 'Quota Reached',
-                'quotaModalLabel': 'Switch to a different API Key / Model combination:',
-                'quotaModalNote': 'The translation will resume from where it left off.',
+                'quotaModalTitle': 'Quota Reached', 'quotaModalLabel': 'Switch to a different API Key / Model combination:', 'quotaModalNote': 'The translation will resume from where it left off.',
                 'findReplaceTitle': 'Find and Replace', 'findLabel': 'Find', 'replaceLabel': 'Replace with', 'caseSensitiveLabel': 'Case sensitive', 'findNextBtn': 'Find Next', 'replaceBtn': 'Replace', 'replaceAllBtn': 'Replace All',
-                'switchAndContinueBtn': 'Switch and Continue', 'cancelTranslationBtn': 'Cancel Translation',
-                // Alerts & Confirmations
-                'clearMemoryConfirm': 'Are you sure you want to clear all saved translations from memory?',
-                'clearMemorySuccess': 'Translation memory cleared!',
-                'deleteKeyConfirm': 'Are you sure you want to delete the key "{keyName}"?',
-                'errorRequired': 'Both key name and value are required.',
-                'errorKeyExists': 'This API key has already been added.',
-                'errorNoFile': 'Please select a PDF file.',
-                'errorNoTranslatableText': 'No translatable text found in the PDF. Original content loaded in editor.',
-                'errorTranslationFailed': 'A critical error occurred: {error}',
-                'errorPdfParse': 'Failed to parse the PDF file. It might be corrupted or protected.',
-                'errorFindText': 'Please enter text to find.',
-                'errorFindEnd': 'End of document reached.',
-                'footerText': 'Created with <i class="fas fa-heart text-red-500 mx-1"></i> by YEBEKHE',
+                'switchAndContinueBtn': 'Switch and Continue', 'cancelTranslationBtn': 'Cancel Translation', 'clearMemoryConfirm': 'Are you sure you want to clear all saved translations from memory?',
+                'clearMemorySuccess': 'Translation memory cleared!', 'deleteKeyConfirm': 'Are you sure you want to delete the key "{keyName}"?', 'errorRequired': 'Both key name and value are required.', 'errorKeyExists': 'This API key has already been added.',
+                'errorNoFile': 'Please select a PDF file.', 'errorNoTranslatableText': 'No translatable text found in the PDF. Original content loaded in editor.', 'errorTranslationFailed': 'A critical error occurred: {error}', 'errorPdfParse': 'Failed to parse the PDF file. It might be corrupted or protected.',
+                'errorFindText': 'Please enter text to find.', 'errorFindEnd': 'End of document reached.', 'footerText': 'Created with <i class="fas fa-heart text-red-500 mx-1"></i> by YEBEKHE',
             },
             fa: {
-                'pageTitle': 'مترجم PDF',
-                'pageSubtitle': 'ترجمه اسناد با هوش مصنوعی',
-                'next': 'بعدی', 'back': 'قبلی', 'remove': 'حذف',
-                'clearMemory': 'پاک کردن حافظه ترجمه',
+                'pageTitle': 'مترجم PDF', 'pageSubtitle': 'ترجمه اسناد با هوش مصنوعی', 'next': 'بعدی', 'back': 'قبلی', 'remove': 'حذف', 'clearMemory': 'پاک کردن حافظه ترجمه',
                 'step1Indicator': 'مرحله ۱', 'step1Name': 'تنظیم API', 'step2Indicator': 'مرحله ۲', 'step2Name': 'افزودن محتوا', 'step3Indicator': 'مرحله ۳', 'step3Name': 'ترجمه',
-                'step1Title': 'مرحله ۱: کلید API خود را پیکربندی کنید',
-                'step1Description': 'این ابزار از Gemini API استفاده می‌کند. لطفاً برای ادامه، کلید API خود را ارائه دهید. کلید شما به صورت محلی در مرورگرتان ذخیره می‌شود و هرگز به سرورهای ما ارسال نمی‌گردد.',
+                'step1Title': 'مرحله ۱: کلید API خود را پیکربندی کنید', 'step1Description': 'این ابزار از Gemini API استفاده می‌کند. لطفاً برای ادامه، کلید API خود را ارائه دهید. کلید شما به صورت محلی در مرورگرتان ذخیره می‌شود و هرگز به سرورهای ما ارسال نمی‌گردد.',
                 'selectApiKeyLabel': 'یک کلید API انتخاب کنید', 'addNewKeyTitle': 'افزودن کلید جدید', 'newKeyNameLabel': 'نام کلید (مثال: "شخصی"، "کاری")', 'newKeyValueLabel': 'مقدار کلید API',
-                'addKeyBtn': 'افزودن کلید', 'deleteKeyBtn': 'حذف کلید', 'noKeysAdded': 'هنوز کلیدی اضافه نشده است. یک کلید در پایین اضافه کنید.',
-                'getApiKeyLink': "کلید رایگان خود را از <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a> دریافت کنید.",
-                'step2Title': 'مرحله ۲: سند PDF خود را اضافه کنید',
-                'dropzone': "فایل PDF را بکشید و رها کنید", 'dropzoneOr': "یا", 'dropzoneChoose': "انتخاب فایل", 'fileSelected': "فایل انتخاب شد:",
-                'step3Title': 'مرحله ۳: نهایی‌سازی و ترجمه',
-                'targetLangLabel': 'زبان مقصد', 'targetLangPlaceholder': 'مثال: اسپانیایی، فرانسوی، ژاپنی',
-                'advancedSettings': 'تنظیمات پیشرفته',
-                'advancedWarning': 'تنظیم این پارامترها می‌تواند بر عملکرد، هزینه و کیفیت ترجمه تأثیر بگذارد. با احتیاط عمل کنید.',
+                'addKeyBtn': 'افزودن کلید', 'deleteKeyBtn': 'حذف کلید', 'noKeysAdded': 'هنوز کلیدی اضافه نشده است. یک کلید در پایین اضافه کنید.', 'getApiKeyLink': "کلید رایگان خود را از <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a> دریافت کنید.",
+                'step2Title': 'مرحله ۲: سند PDF خود را اضافه کنید', 'dropzone': "فایل PDF را بکشید و رها کنید", 'dropzoneOr': "یا", 'dropzoneChoose': "انتخاب فایل", 'fileSelected': "فایل انتخاب شد:",
+                'step3Title': 'مرحله ۳: نهایی‌سازی و ترجمه', 'targetLangLabel': 'زبان مقصد', 'targetLangPlaceholder': 'مثال: اسپانیایی، فرانسوی، ژاپنی',
+                'advancedSettings': 'تنظیمات پیشرفته', 'advancedWarning': 'تنظیم این پارامترها می‌تواند بر عملکرد، هزینه و کیفیت ترجمه تأثیر بگذارد. با احتیاط عمل کنید.',
                 'modelLabel': 'مدل هوش مصنوعی', 'temperatureLabel': 'دما (خلاقیت)', 'chunkStrategyLabel': 'استراتژی تقسیم‌بندی', 'chunkStrategyDefault': 'پیش‌فرض', 'chunkStrategyAuto': 'خودکار', 'chunkStrategyManual': 'دستی',
                 'chunkCountManualLabel': 'تعداد بخش‌ها', 'requestDelayLabel': 'تأخیر بین درخواست‌ها (ms)', 'requestDelayNote': 'تأخیر بین هر درخواست API (مثال: 2000 برای 30 RPM).',
-                'useProxyLabel': 'استفاده از پروکسی', 'customProxyLabel': 'آدرس پروکسی سفارشی (اختیاری)',
-                'customProxyNote': 'پروکسی خود را با استفاده از <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a> راه‌اندازی کنید.',
+                'useProxyLabel': 'استفاده از پروکسی', 'customProxyLabel': 'آدرس پروکسی سفارشی (اختیاری)', 'customProxyNote': 'پروکسی خود را با استفاده از <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a> راه‌اندازی کنید.',
                 'promptSettingsTitle': 'تنظیمات پرامپت و جداکننده', 'customSeparatorLabel': 'جداکننده متن', 'customSeparatorNote': 'رشته‌ای که برای جدا کردن خطوط متن ارسالی به هوش مصنوعی استفاده می‌شود. از \\n برای خط جدید استفاده کنید.',
                 'translationToneLabel': 'لحن ترجمه', 'translationToneNote': 'مثال: رسمی، غیر رسمی، طنزآمیز، دراماتیک.', 'customPromptLabel': 'قالب پرامپت ترجمه', 'customPromptNote': 'از {LANG}، {TONE} و {TEXT} به عنوان placeholder استفاده کنید.',
-                'noCensorLabel': 'افزودن دستور "بدون سانسور"', 'noCensorNote': 'درخواستی به پرامپت اضافه می‌کند تا محتوای صریح سانسور نشود.',
-                'translateNow': 'شروع ترجمه',
-                'progressTitle': 'در حال ترجمه...',
-                'processingChunk': 'پردازش بخش',
-                'progressComplete': 'تکمیل شد', 'progressEstimating': 'در حال تخمین...', 'progressCalculating': 'در حال محاسبه...', 'progressRemaining': 'باقیمانده',
+                'noCensorLabel': 'افزودن دستور "بدون سانسور"', 'noCensorNote': 'درخواستی به پرامپت اضافه می‌کند تا محتوای صریح سانسور نشود.', 'translateNow': 'شروع ترجمه',
+                'progressTitle': 'در حال ترجمه...', 'processingChunk': 'پردازش بخش', 'progressComplete': 'تکمیل شد', 'progressEstimating': 'در حال تخمین...', 'progressCalculating': 'در حال محاسبه...', 'progressRemaining': 'باقیمانده',
                 'editTitle': 'ترجمه خود را ویرایش کنید', 'successTitle': 'ترجمه کامل شد!', 'successText': 'سند ترجمه شده شما برای ویرایش و دانلود آماده است.', 'errorTitle': 'خطایی روی داد',
                 'startNew': 'شروع ترجمه جدید', 'downloadFile': 'دانلود فایل', 'retryFailed': 'تلاش مجدد برای بخش‌های ناموفق:', 'retryButton': 'تلاش مجدد', 'retryingButton': 'در حال تلاش...',
-                'findReplace': 'یافتن/جایگزینی',
-                'tableHeaderId': 'شناسه', 'tableHeaderOriginal': 'متن اصلی', 'tableHeaderTranslated': 'متن ترجمه‌شده (قابل ویرایش)', 'tableHeaderAction': 'عملیات',
+                'findReplace': 'یافتن/جایگزینی', 'tableHeaderId': 'شناسه', 'tableHeaderOriginal': 'متن اصلی', 'tableHeaderTranslated': 'متن ترجمه‌شده (قابل ویرایش)', 'tableHeaderAction': 'عملیات',
                 'logTitle': 'لاگ زنده', 'logCopy': 'کپی', 'logCopied': 'کپی شد!', 'logClear': 'پاک‌سازی',
                 'quotaModalTitle': 'محدودیت استفاده', 'quotaModalLabel': 'به یک ترکیب کلید API / مدل دیگر تغییر دهید:', 'quotaModalNote': 'ترجمه از جایی که متوقف شده بود ادامه خواهد یافت.',
                 'findReplaceTitle': 'یافتن و جایگزینی', 'findLabel': 'یافتن', 'replaceLabel': 'جایگزینی با', 'caseSensitiveLabel': 'حساس به حروف بزرگ و کوچک', 'findNextBtn': 'بعدی را بیاب', 'replaceBtn': 'جایگزین کن', 'replaceAllBtn': 'جایگزینی همه',
-                'switchAndContinueBtn': 'تغییر و ادامه', 'cancelTranslationBtn': 'لغو ترجمه',
-                'clearMemoryConfirm': 'آیا مطمئن هستید که می‌خواهید تمام ترجمه‌های ذخیره شده در حافظه را پاک کنید؟', 'clearMemorySuccess': 'حافظه ترجمه پاک شد!', 'deleteKeyConfirm': 'آیا از حذف کلید "{keyName}" مطمئن هستید؟',
-                'errorRequired': 'هر دو فیلد نام و مقدار کلید الزامی است.', 'errorKeyExists': 'این کلید API قبلاً اضافه شده است.', 'errorNoFile': 'لطفا یک فایل PDF انتخاب کنید.',
-                'errorNoTranslatableText': 'هیچ متن قابل ترجمه‌ای در PDF یافت نشد. محتوای اصلی در ویرایشگر بارگذاری شد.', 'errorTranslationFailed': 'یک خطای اساسی رخ داد: {error}',
-                'errorPdfParse': 'پردازش فایل PDF ناموفق بود. ممکن است فایل خراب یا محافظت شده باشد.',
-                'errorFindText': 'لطفا متنی برای یافتن وارد کنید.', 'errorFindEnd': 'به انتهای سند رسیدید.',
+                'switchAndContinueBtn': 'تغییر و ادامه', 'cancelTranslationBtn': 'لغو ترجمه', 'clearMemoryConfirm': 'آیا مطمئن هستید که می‌خواهید تمام ترجمه‌های ذخیره شده در حافظه را پاک کنید؟',
+                'clearMemorySuccess': 'حافظه ترجمه پاک شد!', 'deleteKeyConfirm': 'آیا از حذف کلید "{keyName}" مطمئن هستید؟', 'errorRequired': 'هر دو فیلد نام و مقدار کلید الزامی است.', 'errorKeyExists': 'این کلید API قبلاً اضافه شده است.',
+                'errorNoFile': 'لطفا یک فایل PDF انتخاب کنید.', 'errorNoTranslatableText': 'هیچ متن قابل ترجمه‌ای در PDF یافت نشد. محتوای اصلی در ویرایشگر بارگذاری شد.', 'errorTranslationFailed': 'یک خطای اساسی رخ داد: {error}',
+                'errorPdfParse': 'پردازش فایل PDF ناموفق بود. ممکن است فایل خراب یا محافظت شده باشد.', 'errorFindText': 'لطفا متنی برای یافتن وارد کنید.', 'errorFindEnd': 'به انتهای سند رسیدید.',
                 'footerText': 'ساخته شده با <i class="fas fa-heart text-red-500 mx-1"></i> توسط YEBEKHE',
             }
         };
 
-        // --- Global Variables & State ---
         const AVAILABLE_MODELS = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-1.0-pro'];
         let uiLang = 'en';
         let uploadedFile = null;
@@ -601,7 +521,6 @@ Original Text:
         let findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: '' };
         let sessionOverrides = {};
 
-        // --- DOM Element References ---
         let htmlElement, languageToggle, clearMemoryButton, translateForm, dropzoneElement, useProxyCheckbox, togglePasswordBtn, langInput, modelSelect, temperatureInput, progressContainer, progressBar, progressText, chunkStatusSpan, timeEstimateSpan, errorMessageDiv;
         let stepSections, stepIndicators, formContainer, resultsArea;
         let nextToStep2Btn, nextToStep3Btn, backToStep1Btn, backToStep2Btns;
@@ -618,7 +537,6 @@ Original Text:
         let findReplaceBtn, findReplaceModal, findReplaceDialog, findReplaceCloseBtn, findInput, replaceInput, caseSensitiveCheckbox, findNextBtn, replaceBtn, replaceAllBtn, findReplaceFeedback;
 
 
-        // --- UI & WIZARD MANAGEMENT ---
         function updateLanguage(lang) {
             uiLang = lang;
             localStorage.setItem('language', lang);
@@ -661,7 +579,7 @@ Original Text:
             stepIndicators.forEach((indicator, index) => {
                 const step = index + 1;
                 const textSpans = indicator.querySelectorAll('span');
-                indicator.className = 'group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0'; // Base classes
+                indicator.className = 'group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0';
                 if (document.documentElement.dir === 'rtl') {
                     indicator.classList.add('border-e-4', 'pe-4', 'md:border-e-0', 'md:pe-0');
                 } else {
@@ -780,7 +698,6 @@ Original Text:
             }
         }
 
-        // --- LOGGING UTILITY ---
         function clearLog() { if (logOutput) logOutput.innerHTML = ''; }
 
         function logMessage(message, type = 'info') {
@@ -797,7 +714,6 @@ Original Text:
             logOutput.scrollTop = logOutput.scrollHeight;
         }
 
-        // --- MODAL MANAGEMENT ---
         let resolveModalPromise = null;
 
         function showModelSwitchModal(failedModel, failedApiKey) {
@@ -832,7 +748,6 @@ Original Text:
             }, 200);
         }
 
-        // --- API KEY MANAGEMENT ---
         function loadApiKeys() {
             savedApiKeys = JSON.parse(localStorage.getItem('apiKeys') || '[]');
             const lastSelectedKey = localStorage.getItem('selectedApiKey');
@@ -889,7 +804,6 @@ Original Text:
             checkStep1Completion();
         }
 
-        // --- PARSING, TRANSLATION, and CORE LOGIC ---
         function clearTranslationMemory() {
             if (confirm(i18n[uiLang].clearMemoryConfirm)) {
                 translationMemory = {};
@@ -1081,7 +995,6 @@ Original Text:
             }
         }
 
-        // --- EDITOR & OUTPUT ---
         function autoResizeTextarea(textarea) { textarea.style.height = 'auto'; textarea.style.height = (textarea.scrollHeight) + 'px'; }
         function isRtl(text) { return /[\u0600-\u06FF\u0590-\u05FF]/.test(text); }
         function isLanguageRtl(langName) { return ['persian', 'farsi', 'arabic', 'hebrew', 'urdu'].some(keyword => langName.toLowerCase().includes(keyword)); }
@@ -1121,6 +1034,26 @@ Original Text:
                 const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.txt`;
                 document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
             } catch (error) { console.error("Error generating TXT file:", error); showError(`Could not generate the TXT file.`); }
+        }
+
+        function generateTranslatedOnlyTxtDownload() {
+            try {
+                const targetLang = currentTargetLangForRetry || langInput.value.trim();
+                const finalContent = currentAllTranslatedEntries.map(entry => entry.text).join('\n\n');
+                const blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${currentOriginalFileName}_${targetLang}_translated_only.txt`;
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+                a.remove();
+            } catch (error) {
+                console.error("Error generating translated-only TXT file:", error);
+                showError(`Could not generate the translated-only TXT file.`);
+            }
         }
         
         async function generateReflowedPdfDownload() {
@@ -1165,6 +1098,89 @@ Original Text:
                 const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.pdf`;
                 document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
             } catch (error) { console.error("Error generating PDF:", error); showError(`Could not generate the PDF file: ${error.message}`); }
+        }
+
+        async function generateTranslatedOnlyPdfDownload() {
+            const { PDFDocument, rgb } = PDFLib;
+            try {
+                logMessage('Starting translated-only PDF generation...');
+                const pdfDoc = await PDFDocument.create();
+                pdfDoc.registerFontkit(fontkit);
+
+                logMessage('Downloading Vazirmatn font for PDF embedding...');
+                const fontUrl = 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@latest/fonts/ttf/Vazirmatn-Regular.ttf';
+                const fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
+                const customFont = await pdfDoc.embedFont(fontBytes);
+                logMessage('Font embedded successfully.');
+
+                let currentPage = pdfDoc.addPage();
+                const { width, height } = currentPage.getSize();
+                const margin = 50;
+                let y = height - margin;
+                const defaultFontSize = 11;
+                const textMaxWidth = width - 2 * margin;
+
+                function wrapText(text, font, size, maxWidth) {
+                    const lines = [];
+                    let currentLine = '';
+                    const words = text.replace(/\n/g, ' \n ').split(' ');
+                    for (const word of words) {
+                        if (word === '\n') {
+                            lines.push(currentLine);
+                            currentLine = '';
+                            continue;
+                        }
+                        const potentialLine = currentLine === '' ? word : `${currentLine} ${word}`;
+                        if (font.widthOfTextAtSize(potentialLine, size) < maxWidth) {
+                            currentLine = potentialLine;
+                        } else {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines;
+                }
+
+                for (const entry of currentAllTranslatedEntries) {
+                    const translatedLines = wrapText(entry.text, customFont, defaultFontSize, textMaxWidth);
+
+                    for (const line of translatedLines) {
+                        if (y < margin) {
+                            currentPage = pdfDoc.addPage();
+                            y = currentPage.getHeight() - margin;
+                        }
+                        currentPage.drawText(line, {
+                            x: margin,
+                            y: y,
+                            font: customFont,
+                            size: defaultFontSize,
+                            color: rgb(0, 0, 0),
+                            lineHeight: 15
+                        });
+                        y -= 15;
+                    }
+                    y -= 20;
+                }
+
+                const pdfBytes = await pdfDoc.save();
+                logMessage('PDF generation complete. Triggering download.');
+
+                const targetLang = currentTargetLangForRetry || langInput.value.trim();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${currentOriginalFileName}_${targetLang}_translated_only.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+                a.remove();
+            } catch (error) {
+                console.error("Error generating translated-only PDF:", error);
+                showError(`Could not generate the translated-only PDF file: ${error.message}`);
+            }
         }
 
         async function generateDocxDownload() {
@@ -1306,7 +1322,6 @@ Original Text:
             findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: '' };
         }
 
-        // --- EVENT LISTENERS INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             htmlElement = document.documentElement;
             languageToggle = document.getElementById('languageToggle');
@@ -1425,11 +1440,15 @@ Original Text:
             const downloadDocxBtn = document.getElementById('download-docx-btn');
             const downloadPdfBtn = document.getElementById('download-pdf-btn');
             const downloadTxtBtn = document.getElementById('download-txt-btn');
+            const downloadTxtTranslatedBtn = document.getElementById('download-txt-translated-btn');
+            const downloadPdfTranslatedBtn = document.getElementById('download-pdf-translated-btn');
             downloadDropdownToggle.addEventListener('click', () => { downloadDropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', (event) => { if (!downloadBtnContainer.contains(event.target)) { downloadDropdownMenu.classList.add('hidden'); } });
             downloadDocxBtn.addEventListener('click', (e) => { e.preventDefault(); generateDocxDownload(); downloadDropdownMenu.classList.add('hidden'); });
             downloadPdfBtn.addEventListener('click', (e) => { e.preventDefault(); generateReflowedPdfDownload(); downloadDropdownMenu.classList.add('hidden'); });
             downloadTxtBtn.addEventListener('click', (e) => { e.preventDefault(); generateTxtDownload(); downloadDropdownMenu.classList.add('hidden'); });
+            downloadTxtTranslatedBtn.addEventListener('click', (e) => { e.preventDefault(); generateTranslatedOnlyTxtDownload(); downloadDropdownMenu.classList.add('hidden'); });
+            downloadPdfTranslatedBtn.addEventListener('click', (e) => { e.preventDefault(); generateTranslatedOnlyPdfDownload(); downloadDropdownMenu.classList.add('hidden'); });
         });
     </script>
 
