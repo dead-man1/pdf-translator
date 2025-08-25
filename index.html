@@ -191,13 +191,13 @@
                                    </div>
                                    <div>
                                        <label for="temperature" class="block mb-2 text-sm font-medium" data-i18n="temperatureLabel">Temperature</label>
-                                       <input type="number" id="temperature" value="0.5" min="0" max="1" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                       <input type="number" id="temperature" value="0.7" min="0" max="1" step="0.1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
                                    </div>
                                    <div>
                                        <label class="block mb-2 text-sm font-medium" data-i18n="chunkStrategyLabel">Chunking Strategy</label>
                                        <div class="flex items-center space-x-4">
-                                            <div class="flex items-center"><input type="radio" id="chunk_default" name="chunk_strategy" value="default" class="w-4 h-4" checked><label for="chunk_default" class="ms-2 text-sm" data-i18n="chunkStrategyDefault">Default</label></div>
-                                            <div class="flex items-center"><input type="radio" id="chunk_auto" name="chunk_strategy" value="auto" class="w-4 h-4"><label for="chunk_auto" class="ms-2 text-sm" data-i18n="chunkStrategyAuto">Automatic</label></div>
+                                            <div class="flex items-center"><input type="radio" id="chunk_default" name="chunk_strategy" value="default" class="w-4 h-4"><label for="chunk_default" class="ms-2 text-sm" data-i18n="chunkStrategyDefault">Default</label></div>
+                                            <div class="flex items-center"><input type="radio" id="chunk_auto" name="chunk_strategy" value="auto" class="w-4 h-4" checked><label for="chunk_auto" class="ms-2 text-sm" data-i18n="chunkStrategyAuto">Automatic</label></div>
                                             <div class="flex items-center"><input type="radio" id="chunk_manual" name="chunk_strategy" value="manual" class="w-4 h-4"><label for="chunk_manual" class="ms-2 text-sm" data-i18n="chunkStrategyManual">Manual</label></div>
                                        </div>
                                        <div id="manual_chunk_container" class="mt-2 hidden">
@@ -207,8 +207,8 @@
                                    </div>
                                     <div>
                                        <label for="request-delay" class="block mb-2 text-sm font-medium" data-i18n="requestDelayLabel">Request Delay (ms)</label>
-                                       <input type="number" id="request-delay" value="2000" min="0" step="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
-                                       <p class="text-xs text-gray-500 mt-1" data-i18n="requestDelayNote">Delay between each API request (e.g., 2000 for 30 RPM).</p>
+                                       <input type="number" id="request-delay" value="4000" min="0" step="100" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600">
+                                       <p class="text-xs text-gray-500 mt-1" data-i18n="requestDelayNote">Delay between each API request (e.g., 4000 for 15 RPM).</p>
                                    </div>
                                </div>
                                <div class="flex items-center pt-4">
@@ -225,23 +225,31 @@
                                    <h4 class="font-semibold mb-2" data-i18n="promptSettingsTitle">Prompt & Separator Settings</h4>
                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                        <div>
-                                            <label for="separator-input" class="block mb-1 text-sm" data-i18n="customSeparatorLabel">Text Separator</label>
-                                            <input type="text" id="separator-input" value="|||" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600">
-                                            <p class="text-xs text-gray-500 mt-1" data-i18n="customSeparatorNote">The string used to separate text lines. Use \\n for newlines.</p>
-                                       </div>
-                                       <div>
-                                            <label for="tone-input" class="block mb-1 text-sm" data-i18n="translationToneLabel">Translation Tone</label>
-                                            <input type="text" id="tone-input" placeholder="e.g., formal, informal" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600">
-                                            <p class="text-xs text-gray-500 mt-1" data-i18n="translationToneNote">e.g., formal, informal, humorous, dramatic.</p>
-                                       </div>
+                                        <label for="tone-select" class="block mb-1 text-sm" data-i18n="translationToneLabel">Translation Tone</label>
+                                        <select id="tone-select"
+                                            class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600">
+                                            <option value="">Default (None)</option>
+                                            <option value="casual">Casual</option>
+                                            <option value="formal">Formal</option>
+                                            <option value="informal">Informal</option>
+                                            <option value="professional">Professional</option>
+                                            <option value="technical">Technical</option>
+                                            <option value="humorous">Humorous</option>
+                                            <option value="dramatic">Dramatic</option>
+                                            <option value="custom">Custom...</option>
+                                        </select>
+                                        <input type="text" id="tone-custom-input" placeholder="Enter your custom tone"
+                                            class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600 mt-2 hidden">
+                                        <p class="text-xs text-gray-500 mt-1" data-i18n="translationToneNote">e.g., formal, informal, humorous, dramatic.
+                                        </p>
+                                    </div>
                                        <div class="md:col-span-2">
                                             <label for="prompt-template-input" class="block mb-1 text-sm" data-i18n="customPromptLabel">Translation Prompt Template</label>
-                                            <textarea id="prompt-template-input" rows="5" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600">You are an expert translator. Your task is to translate a list of text segments to {LANG} with a {TONE} tone.
+                                            <textarea id="prompt-template-input" rows="5" class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg p-2 dark:bg-gray-700 dark:border-gray-600">You are an expert translator. Your task is to translate the entire text block below to {LANG} with a {TONE} tone.
 
-You will be given {COUNT} lines of text, separated by "|||".
-Your response MUST contain exactly {COUNT} lines of translated text, also separated by "|||".
-Do not add any extra explanations, greetings, or any text before the first segment or after the last one.
-
+Preserve the original paragraph structure and formatting (like line breaks) as best as you can.
+Your response MUST contain ONLY the translated text, without any additional explanations, greetings, or commentary.
+                                                
 Original Text:
 {TEXT}</textarea>
                                             <p class="text-xs text-gray-500 mt-1" data-i18n="customPromptNote">Use {LANG}, {TONE}, and {TEXT} as placeholders.</p>
@@ -311,7 +319,7 @@ Original Text:
 
             <!-- Editor View -->
             <div id="editor-container" style="display: none;" class="mt-6 bg-white dark:bg-gray-800 p-2 md:p-6 rounded-xl shadow-md">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 flex-wrap">
                     <h2 class="text-2xl font-bold" data-i18n="editTitle">Edit Your Translation</h2>
                     <div class="flex items-center space-x-2 mt-4 md:mt-0">
                         <button id="find-replace-btn" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
@@ -333,32 +341,21 @@ Original Text:
                                 <i class="fas fa-chevron-down ms-2"></i>
                             </button>
                             <!-- Dropdown menu -->
-                            <div id="download-dropdown-menu" class="hidden absolute end-0 mt-2 z-10 w-56 bg-white rounded-lg shadow-lg dark:bg-gray-700">
+                            <div id="download-dropdown-menu" class="hidden absolute end-0 mt-2 z-10 w-48 bg-white rounded-lg shadow-lg dark:bg-gray-700">
                                 <ul class="py-2 text-sm text-gray-700 dark:text-gray-200">
                                     <li>
                                         <a href="#" id="download-docx-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-word w-4 me-2"></i> As DOCX (Original + Translated)
+                                            <i class="fas fa-file-word w-4 me-2"></i> As DOCX
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#" id="download-pdf-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-pdf w-4 me-2"></i> As Reflowed PDF (Original + Translated)
+                                            <i class="fas fa-file-pdf w-4 me-2"></i> As PDF
                                         </a>
                                     </li>
                                     <li>
                                         <a href="#" id="download-txt-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT (Original + Translated)
-                                        </a>
-                                    </li>
-                                    <li class="border-t my-1 dark:border-gray-600"></li>
-                                    <li>
-                                        <a href="#" id="download-pdf-translated-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-pdf w-4 me-2"></i> As PDF (Translated Only)
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" id="download-txt-translated-btn" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600">
-                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT (Translated Only)
+                                            <i class="fas fa-file-alt w-4 me-2"></i> As TXT
                                         </a>
                                     </li>
                                 </ul>
@@ -367,9 +364,9 @@ Original Text:
                     </div>
                 </div>
                 
-                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div class="relative overflow-x-auto shadow-md sm:rounded-lg max-h-[70vh] overflow-y-auto">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
                             <tr>
                                 <th scope="col" class="px-4 py-3 w-24" data-i18n="tableHeaderId">ID</th>
                                 <th scope="col" class="px-6 py-3" data-i18n="tableHeaderOriginal">Original Text</th>
@@ -462,7 +459,7 @@ Original Text:
                 'step3Title': 'Step 3: Finalize and Translate', 'targetLangLabel': 'Target Language', 'targetLangPlaceholder': 'e.g., Spanish, French, Japanese',
                 'advancedSettings': 'Advanced Settings', 'advancedWarning': 'Adjusting these settings can affect performance, cost, and quality. Proceed with caution.',
                 'modelLabel': 'AI Model', 'temperatureLabel': 'Temperature', 'chunkStrategyLabel': 'Chunking Strategy', 'chunkStrategyDefault': 'Default', 'chunkStrategyAuto': 'Automatic', 'chunkStrategyManual': 'Manual',
-                'chunkCountManualLabel': 'Number of Chunks', 'requestDelayLabel': 'Request Delay (ms)', 'requestDelayNote': 'Delay between each API request (e.g., 2000 for 30 RPM).',
+                'chunkCountManualLabel': 'Number of Chunks', 'requestDelayLabel': 'Request Delay (ms)', 'requestDelayNote': 'Delay between each API request (e.g., 4000 for 15 RPM).',
                 'useProxyLabel': 'Use Proxy', 'customProxyLabel': 'Custom Proxy URL (Optional)', 'customProxyNote': 'Deploy your own proxy using <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a>.',
                 'promptSettingsTitle': 'Prompt & Separator Settings', 'customSeparatorLabel': 'Text Separator', 'customSeparatorNote': 'The string used to separate text lines. Use \\n for newlines.',
                 'translationToneLabel': 'Translation Tone', 'translationToneNote': 'e.g., formal, informal, humorous, dramatic.', 'customPromptLabel': 'Translation Prompt Template', 'customPromptNote': 'Use {LANG}, {TONE}, and {TEXT} as placeholders.',
@@ -489,7 +486,7 @@ Original Text:
                 'step3Title': 'مرحله ۳: نهایی‌سازی و ترجمه', 'targetLangLabel': 'زبان مقصد', 'targetLangPlaceholder': 'مثال: اسپانیایی، فرانسوی، ژاپنی',
                 'advancedSettings': 'تنظیمات پیشرفته', 'advancedWarning': 'تنظیم این پارامترها می‌تواند بر عملکرد، هزینه و کیفیت ترجمه تأثیر بگذارد. با احتیاط عمل کنید.',
                 'modelLabel': 'مدل هوش مصنوعی', 'temperatureLabel': 'دما (خلاقیت)', 'chunkStrategyLabel': 'استراتژی تقسیم‌بندی', 'chunkStrategyDefault': 'پیش‌فرض', 'chunkStrategyAuto': 'خودکار', 'chunkStrategyManual': 'دستی',
-                'chunkCountManualLabel': 'تعداد بخش‌ها', 'requestDelayLabel': 'تأخیر بین درخواست‌ها (ms)', 'requestDelayNote': 'تأخیر بین هر درخواست API (مثال: 2000 برای 30 RPM).',
+                'chunkCountManualLabel': 'تعداد بخش‌ها', 'requestDelayLabel': 'تأخیر بین درخواست‌ها (ms)', 'requestDelayNote': 'تأخیر بین هر درخواست API (مثال: 4000 برای 15 RPM).',
                 'useProxyLabel': 'استفاده از پروکسی', 'customProxyLabel': 'آدرس پروکسی سفارشی (اختیاری)', 'customProxyNote': 'پروکسی خود را با استفاده از <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a> راه‌اندازی کنید.',
                 'promptSettingsTitle': 'تنظیمات پرامپت و جداکننده', 'customSeparatorLabel': 'جداکننده متن', 'customSeparatorNote': 'رشته‌ای که برای جدا کردن خطوط متن ارسالی به هوش مصنوعی استفاده می‌شود. از \\n برای خط جدید استفاده کنید.',
                 'translationToneLabel': 'لحن ترجمه', 'translationToneNote': 'مثال: رسمی، غیر رسمی، طنزآمیز، دراماتیک.', 'customPromptLabel': 'قالب پرامپت ترجمه', 'customPromptNote': 'از {LANG}، {TONE} و {TEXT} به عنوان placeholder استفاده کنید.',
@@ -517,12 +514,12 @@ Original Text:
         let currentStep = 1;
         let firstChunkTime = 0;
         let failedChunksData = [];
-        let currentAllTranslatedEntries = [];
+        let translatedChunksData = [];
         let currentOriginalFileName = 'translation';
         let currentApiKey = '';
         let currentModel = 'gemini-1.5-flash-latest';
-        let currentTemperature = 0.5;
-        let currentRequestDelay = 2000;
+        let currentTemperature = 0.7;
+        let currentRequestDelay = 4000;
         let currentTargetLangForRetry = '';
         const proxyUrl = 'https://middleman.yebekhe.workers.dev';
         let findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: '' };
@@ -538,7 +535,7 @@ Original Text:
         let logViewerContainer, logOutput, toggleLogBtnEditor, toggleLogBtnProgress, copyLogBtn, clearLogBtn;
         let chunkStrategyRadios, manualChunkContainer, chunkCountManualInput, requestDelayInput;
         let modelSwitchModal, modelSwitchDialog, modalSwitchBtn, modalCancelBtn, modalComboSelect;
-        let separatorInput, promptTemplateInput, noCensorCheckbox, toneInput;
+        let separatorInput, promptTemplateInput, noCensorCheckbox, toneSelect, toneCustomInput;
         let apiKeySelect, newKeyNameInput, newKeyValueInput, addKeyBtn, deleteKeyBtn;
         let customProxyContainer, customProxyInput;
         let findReplaceBtn, findReplaceModal, findReplaceDialog, findReplaceCloseBtn, findInput, replaceInput, caseSensitiveCheckbox, findNextBtn, replaceBtn, replaceAllBtn, findReplaceFeedback;
@@ -679,7 +676,7 @@ Original Text:
             if(logViewerContainer) logViewerContainer.style.display = 'none';
 
             failedChunksData = [];
-            currentAllTranslatedEntries = [];
+            translatedChunksData = [];
         }
 
         function updateProgress(chunkIndex, totalChunks, startTime) {
@@ -869,22 +866,39 @@ Original Text:
 
         async function fetchTranslation(chunk, apiKey, targetLang, model, temperature) {
             if (!chunk || chunk.length === 0) return [];
-            const separator = separatorInput.value.replace(/\\n/g, '\n');
+            
+            // Combine paragraphs with a double newline to preserve structure for the AI.
+            const combinedText = chunk.map(entry => entry.text).join('\n\n');
             const promptTemplate = promptTemplateInput.value;
-            const tone = toneInput.value.trim();
-            const combinedText = chunk.map(entry => entry.text).join(separator);
-            let effectivePrompt = promptTemplate.replace('{LANG}', targetLang).replace('{TEXT}', combinedText).replace('{TONE}', tone).replace('{COUNT}', chunk.length);
-            if (noCensorCheckbox.checked) effectivePrompt += '\n\nIMPORTANT: Do not censor or alter any explicit words or profanity in the original text. Translate them directly and accurately.';
+            const tone = toneSelect.value === 'custom' ? toneCustomInput.value.trim() : toneSelect.value;
+
+            // The new prompt is simpler and has no {COUNT}.
+            let effectivePrompt = promptTemplate
+                .replace('{LANG}', targetLang)
+                .replace('{TEXT}', combinedText)
+                .replace('{TONE}', tone || 'neutral');
+
+            if (noCensorCheckbox.checked) {
+                effectivePrompt += '\n\nIMPORTANT: Do not censor or alter any explicit words or profanity in the original text. Translate them directly and accurately.';
+            }
+
             const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
             let targetUrl = useProxyCheckbox.checked ? (customProxyInput.value.trim() || proxyUrl) : directUrl;
-            let finalPayload = { contents: [{ parts: [{ text: effectivePrompt }] }], safetySettings: [{ category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }], generationConfig: { temperature } };
-            if (useProxyCheckbox.checked) finalPayload.endpoint = directUrl;
-            const fetchOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finalPayload) };
+
+            let finalPayload = {
+                contents: [{ parts: [{ text: effectivePrompt }] }],
+                safetySettings: [ { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" }, { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" } ],
+                generationConfig: { temperature }
+            };
+
+            if (useProxyCheckbox.checked) { finalPayload.endpoint = directUrl; }
+
             logMessage(`Fetching translation for chunk of size ${chunk.length} using model "${model}".`);
-            let response;
-            try { response = await fetch(targetUrl, fetchOptions); } catch (error) { if (error instanceof TypeError) throw new Error(`NetworkError: Failed to fetch. Check your internet connection or proxy settings.`); throw error; }
+            
+            const response = await fetch(targetUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finalPayload) });
+
             if (!response.ok) {
-                if (response.status === 429) {
+                 if (response.status === 429) {
                      try {
                         const errorData = await response.json();
                         if (errorData?.error?.message.includes('rate limit')) { throw new Error(`RATE_LIMIT_HIT 61000`); }
@@ -893,41 +907,17 @@ Original Text:
                 }
                 throw new Error(`API error ${response.status}: ${await response.text()}`);
             }
-            const data = await response.json();
-                        const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (responseText === undefined) throw new Error('Invalid API response structure. No text found.');
             
-            const receivedLines = responseText.trim().split(separator.trim());
-            const finalTranslations = [];
+            const data = await response.json();
+            const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-            // Scenario 1: Line counts do NOT match. Accept the translation and merge it.
-            if (receivedLines.length !== chunk.length && responseText.trim() !== "") {
-                logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Merging result into a single block.`, 'warn');
-                
-                // Create a regular expression to safely replace all occurrences of the separator.
-                const separatorRegex = new RegExp(separator.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
-                
-                // Replace every "|||" with a line break "\n" to create a clean paragraph.
-                const mergedTranslation = responseText.trim().replace(separatorRegex, '\n');
-                
-                // Assign the complete, merged translation to the first line's slot.
-                finalTranslations.push(mergedTranslation);
-
-                // Fill the remaining slots for this chunk with empty strings, as they've been merged.
-                for (let i = 1; i < chunk.length; i++) {
-                    finalTranslations.push('');
-                }
-
-            // Scenario 2: Line counts match. Assign them one-to-one.
-            } else {
-                for (let i = 0; i < chunk.length; i++) {
-                    // If a line exists, use it. Otherwise, use an empty string (never the original text).
-                    finalTranslations.push((receivedLines[i] && receivedLines[i].trim() !== '') ? receivedLines[i].trim() : '');
-                }
+            if (responseText === undefined) {
+                throw new Error('Invalid API response structure. No text found.');
             }
-
+            
             logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
-            return finalTranslations; 
+            // The function now returns a single, complete block of translated text.
+            return responseText.trim();
         }
         
 
@@ -942,6 +932,11 @@ Original Text:
                     logMessage(`Daily quota exhausted for model: ${failedModel}.`, 'error');
                     const userResponse = await showModelSwitchModal(failedModel, failedApiKey);
                     if (userResponse && userResponse.choice === 'switch') {
+                        // THE FIX: Update the global variables to make the switch persistent
+                        currentApiKey = userResponse.newApiKey;
+                        currentModel = userResponse.newModel;
+                        logMessage(`Switched session to model "${currentModel}" for subsequent requests.`, 'success');
+
                         sessionOverrides[`${failedApiKey}|${failedModel}`] = { newApiKey: userResponse.newApiKey, newModel: userResponse.newModel };
                         return translateChunkRecursively(chunk, userResponse.newApiKey, targetLang, userResponse.newModel, temperature, requestDelay);
                     } else throw new Error('Translation cancelled by user due to quota limit.');
@@ -953,12 +948,40 @@ Original Text:
             const textsToTranslate = [], cachedResults = new Map();
             const override = sessionOverrides[`${apiKey}|${model}`];
             let effectiveApiKey = override ? override.newApiKey : apiKey, effectiveModel = override ? override.newModel : model;
-            chunk.forEach((entry, index) => { const cached = findInTranslationMemory(entry.text, targetLang); if (cached) cachedResults.set(index, cached); else textsToTranslate.push({ originalIndex: index, ...entry }); });
-            if (textsToTranslate.length === 0) return Array.from({ length: chunk.length }, (_, i) => cachedResults.get(i));
-            const translatedTexts = await translateChunkRecursively(textsToTranslate, effectiveApiKey, targetLang, effectiveModel, temperature, requestDelay);
-            translatedTexts.forEach((translatedText, i) => updateTranslationMemory(textsToTranslate[i].text, translatedText, targetLang));
-            const finalTranslations = []; let translatedIndex = 0;
-            for (let i = 0; i < chunk.length; i++) { if (cachedResults.has(i)) finalTranslations[i] = cachedResults.get(i); else { finalTranslations[i] = translatedTexts[translatedIndex] || chunk[i].text; translatedIndex++; } }
+            
+            // NOTE: The translation memory is less effective in this mode, as it checks paragraph by paragraph.
+            // We'll keep it for cases where a whole chunk might be identical, but it's less likely.
+            chunk.forEach((entry, index) => { 
+                const cached = findInTranslationMemory(entry.text, targetLang); 
+                if (cached) {
+                    cachedResults.set(index, cached); 
+                } else {
+                    textsToTranslate.push({ originalIndex: index, ...entry }); 
+                }
+            });
+            
+            // If the entire chunk was cached, return the cached results.
+            if (textsToTranslate.length === 0) {
+                 return Array.from({ length: chunk.length }, (_, i) => cachedResults.get(i));
+            }
+            
+            // Fetch the translation for the entire chunk as one block.
+            const translatedBlock = await translateChunkRecursively(textsToTranslate, effectiveApiKey, targetLang, effectiveModel, temperature, requestDelay);
+            
+            // Create the final result array.
+            const finalTranslations = Array(chunk.length).fill('');
+            
+            // Place the entire translated block in the first position of the chunk's results.
+            if (textsToTranslate.length > 0) {
+                const firstOriginalIndex = textsToTranslate[0].originalIndex;
+                finalTranslations[firstOriginalIndex] = translatedBlock;
+            }
+
+            // Fill in any results that were found in memory.
+            cachedResults.forEach((value, key) => {
+                finalTranslations[key] = value;
+            });
+            
             await new Promise(resolve => setTimeout(resolve, requestDelay));
             return finalTranslations;
         }
@@ -971,54 +994,81 @@ Original Text:
             resetUIForNewTranslation();
             clearLog();
             logMessage('Translation process started.');
+
             const targetLanguage = langInput.value.trim();
             currentApiKey = apiKeySelect.value;
             currentModel = modelSelect.value;
             currentTemperature = parseFloat(temperatureInput.value);
             currentRequestDelay = parseInt(requestDelayInput.value, 10) || 2000;
             currentTargetLangForRetry = targetLanguage;
+
             if (!uploadedFile) { showError(i18n[uiLang].errorNoFile); resetWizard(); return; }
             currentOriginalFileName = uploadedFile.name.replace(/\.[^/.]+$/, "");
+            
             const startTime = performance.now();
             firstChunkTime = 0;
+
             try {
                 logMessage(`Parsing PDF file: ${uploadedFile.name}...`);
                 const allParsedEntries = await parsePdf(uploadedFile);
                 logMessage(`Found ${allParsedEntries.length} text blocks (paragraphs).`);
-                allParsedEntries.forEach(entry => entry.text_original = entry.text);
+                
                 if (allParsedEntries.length === 0) {
-                    currentAllTranslatedEntries = []; populateEditor();
+                    translatedChunksData = [];
+                    populateEditor();
                     showError(i18n[uiLang].errorNoTranslatableText, 'success');
-                    logMessage('No translatable text found. Process finished.', 'success'); return;
+                    logMessage('No translatable text found. Process finished.', 'success');
+                    return;
                 }
+
                 let chunkCount;
                 const chunkStrategy = document.querySelector('input[name="chunk_strategy"]:checked').value;
                 if (chunkStrategy === 'auto') chunkCount = Math.ceil(allParsedEntries.length / 25);
-                else if (chunkStrategy === 'manual') chunkCount = Math.ceil(parseInt(chunkCountManualInput.value, 10)) || 20;
+                else if (chunkStrategy === 'manual') chunkCount = parseInt(chunkCountManualInput.value, 10) || 20;
                 else chunkCount = 20;
-                logMessage(`${chunkStrategy.charAt(0).toUpperCase() + chunkStrategy.slice(1)} strategy: Using ${chunkCount} chunks.`, 'info');
-                const chunks = splitIntoChunks(allParsedEntries, chunkCount), totalChunks = chunks.length;
+                
+                const chunks = splitIntoChunks(allParsedEntries, chunkCount);
+                const totalChunks = chunks.length;
                 logMessage(`Splitting into ${totalChunks} actual chunks for processing.`);
-                const translatedTextMap = new Map();
+                
+                translatedChunksData = []; // Reset the data
                 updateProgress(-1, totalChunks, startTime);
+
                 for (let i = 0; i < totalChunks; i++) {
                     updateProgress(i, totalChunks, i === 0 ? startTime : null);
+                    const currentChunk = chunks[i];
+                    const combinedOriginalText = currentChunk.map(entry => entry.text).join('\n\n');
+                    let translatedBlock = '';
+
                     try {
                         const chunkStartTime = performance.now();
-                        const translatedTexts = await translateChunk(chunks[i], currentApiKey, targetLanguage, currentModel, currentTemperature, currentRequestDelay);
+                        translatedBlock = await translateChunk(currentChunk, currentApiKey, targetLanguage, currentModel, currentTemperature, currentRequestDelay);
                         if (i === 0 && totalChunks > 1) { firstChunkTime = (performance.now() - chunkStartTime) / 1000; logMessage(`First chunk took ${firstChunkTime.toFixed(1)}s. Estimating remaining time.`, 'info'); }
-                        chunks[i].forEach((entry, idx) => translatedTextMap.set(entry, translatedTexts[idx] || entry.text));
                     } catch (chunkError) {
                         logMessage(`Chunk ${i + 1} failed: ${chunkError.message}`, 'error');
-                        failedChunksData.push({ index: i, chunkData: chunks[i], reason: chunkError.message });
-                        chunks[i].forEach(entry => translatedTextMap.set(entry, entry.text));
+                        failedChunksData.push({ index: i, chunkData: currentChunk, reason: chunkError.message });
+                        // On failure, use the original text as the fallback
+                        translatedBlock = combinedOriginalText;
                     }
+                    
+                    translatedChunksData.push({
+                        id: i,
+                        originalText: combinedOriginalText,
+                        translatedText: translatedBlock
+                    });
                 }
-                currentAllTranslatedEntries = allParsedEntries.map(entry => translatedTextMap.has(entry) ? { ...entry, text: translatedTextMap.get(entry) } : entry);
+                
                 logMessage('All chunks processed. Populating editor.');
                 populateEditor();
-                if (failedChunksData.length > 0) { showError(`Translation finished with ${failedChunksData.length} failed chunk(s).`, 'warn'); logMessage(`Translation finished with ${failedChunksData.length} failed chunk(s).`, 'warn'); displayRetryButtons(); }
-                else { showError(i18n[uiLang].successText, 'success'); logMessage('Translation successful!', 'success'); }
+                
+                if (failedChunksData.length > 0) { 
+                    showError(`Translation finished with ${failedChunksData.length} failed chunk(s).`, 'warn');
+                    logMessage(`Translation finished with ${failedChunksData.length} failed chunk(s).`, 'warn');
+                    displayRetryButtons(); 
+                } else { 
+                    showError(i18n[uiLang].successText, 'success');
+                    logMessage('Translation successful!', 'success');
+                }
             } catch (error) {
                 progressContainer.style.display = 'none';
                 let errorMessage = error.message;
@@ -1036,23 +1086,40 @@ Original Text:
         function populateEditor() {
             if (!editorTbody) return;
             editorTbody.innerHTML = '';
-            const targetLanguage = langInput.value.trim(), isTargetRtl = isLanguageRtl(targetLanguage);
-            currentAllTranslatedEntries.forEach((entry, index) => {
+            const targetLanguage = langInput.value.trim();
+            const isTargetRtl = isLanguageRtl(targetLanguage);
+
+            translatedChunksData.forEach((chunkData, index) => {
                 const tr = document.createElement('tr');
                 tr.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600';
                 tr.dataset.index = index;
-                const originalText = entry.text_original || entry.text, translatedText = entry.text, isOriginalRtl = isRtl(originalText);
+                
+                const isOriginalRtl = isRtl(chunkData.originalText);
+
                 tr.innerHTML = `
-                    <td class="px-4 py-2 text-center font-medium text-gray-900 dark:text-white">${entry.id}</td>
-                    <td class="px-6 py-2 whitespace-pre-wrap" style="direction: ${isOriginalRtl ? 'rtl' : 'ltr'}; text-align: ${isOriginalRtl ? 'right' : 'left'};">${originalText}</td>
+                    <td class="px-4 py-2 text-center font-medium text-gray-900 dark:text-white">${index + 1}</td>
                     <td class="px-6 py-2">
-                        <textarea class="w-full p-1 bg-transparent border-0 rounded-md focus:ring-2 focus:ring-primary-500 overflow-hidden" style="direction: ${isTargetRtl ? 'rtl' : 'ltr'}; text-align: ${isTargetRtl ? 'right' : 'left'};" rows="1">${translatedText}</textarea>
+                        <textarea readonly class="w-full p-1 bg-gray-100 dark:bg-gray-900 border-0 rounded-md overflow-hidden" style="direction: ${isOriginalRtl ? 'rtl' : 'ltr'}; text-align: ${isOriginalRtl ? 'right' : 'left'};" rows="1">${chunkData.originalText}</textarea>
+                    </td>
+                    <td class="px-6 py-2">
+                        <textarea class="w-full p-1 bg-transparent border-0 rounded-md focus:ring-2 focus:ring-primary-500 overflow-hidden" style="direction: ${isTargetRtl ? 'rtl' : 'ltr'}; text-align: ${isTargetRtl ? 'right' : 'left'};" rows="1">${chunkData.translatedText}</textarea>
                     </td>
                     <td class="px-4 py-2 text-center"><button class="retranslate-btn text-gray-400 hover:text-primary-500"><i class="fas fa-sync-alt"></i></button></td>`;
-                const textarea = tr.querySelector('textarea');
-                textarea.addEventListener('input', function() { autoResizeTextarea(this); currentAllTranslatedEntries[this.closest('tr').dataset.index].text = this.value; });
+                
+                const originalTextarea = tr.querySelector('textarea[readonly]');
+                const translatedTextarea = tr.querySelector('textarea:not([readonly])');
+
+                translatedTextarea.addEventListener('input', function() {
+                    autoResizeTextarea(this);
+                    translatedChunksData[this.closest('tr').dataset.index].translatedText = this.value;
+                });
+
                 editorTbody.appendChild(tr);
-                setTimeout(() => autoResizeTextarea(textarea), 0);
+                // Auto-resize both textareas after they are added to the DOM
+                setTimeout(() => {
+                    autoResizeTextarea(originalTextarea);
+                    autoResizeTextarea(translatedTextarea);
+                }, 0);
             });
             progressContainer.style.display = 'none';
             editorContainer.style.display = 'block';
@@ -1061,8 +1128,15 @@ Original Text:
         function generateTxtDownload() {
             try {
                 const targetLang = currentTargetLangForRetry || langInput.value.trim();
-                let finalContent = `PDF Translation: ${currentOriginalFileName}\nSource Language: Auto-detected\nTarget Language: ${targetLang}\n\n========================================\n\n`;
-                currentAllTranslatedEntries.forEach(entry => { finalContent += `--- ID: ${entry.id} (Page ${entry.otherData.pageNum}) ---\n\n[ORIGINAL]\n${entry.text_original}\n\n[TRANSLATED]\n${entry.text}\n\n----------------------------------------\n\n`; });
+                
+                const finalContent = translatedChunksData.map(chunk => {
+                    // Clean the text by removing empty or whitespace-only lines
+                    return chunk.translatedText
+                        .split('\n')
+                        .filter(line => line.trim() !== '')
+                        .join('\n');
+                }).join('\n\n---\n\n');
+
                 const blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.txt`;
@@ -1070,78 +1144,12 @@ Original Text:
             } catch (error) { console.error("Error generating TXT file:", error); showError(`Could not generate the TXT file.`); }
         }
 
-        function generateTranslatedOnlyTxtDownload() {
-            try {
-                const targetLang = currentTargetLangForRetry || langInput.value.trim();
-                const finalContent = currentAllTranslatedEntries.map(entry => entry.text).join('\n\n');
-                const blob = new Blob([finalContent], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `${currentOriginalFileName}_${targetLang}_translated_only.txt`;
-                document.body.appendChild(a);
-                a.click();
-                URL.revokeObjectURL(url);
-                a.remove();
-            } catch (error) {
-                console.error("Error generating translated-only TXT file:", error);
-                showError(`Could not generate the translated-only TXT file.`);
-            }
-        }
-        
         async function generateReflowedPdfDownload() {
             const { PDFDocument, rgb } = PDFLib;
             try {
                 logMessage('Starting PDF generation...');
                 const pdfDoc = await PDFDocument.create();
                 pdfDoc.registerFontkit(fontkit);
-                logMessage('Downloading Vazirmatn font for PDF embedding...');
-                const fontUrl = 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@latest/fonts/ttf/Vazirmatn-Regular.ttf';
-                const fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
-                const customFont = await pdfDoc.embedFont(fontBytes);
-                logMessage('Font embedded successfully.');
-                let currentPage = null, y = 0; const margin = 50, defaultFontSize = 11;
-                function wrapText(text, font, size, maxWidth) {
-                    const lines = []; let currentLine = '';
-                    for (let i = 0; i < text.length; i++) {
-                        const char = text[i], potentialLine = currentLine + char;
-                        if (font.widthOfTextAtSize(potentialLine, size) < maxWidth) currentLine = potentialLine;
-                        else { lines.push(currentLine); currentLine = char; }
-                    }
-                    lines.push(currentLine); return lines;
-                }
-                for (const entry of currentAllTranslatedEntries) {
-                    if (!currentPage || currentPage.pageNumber !== entry.otherData.pageNum) {
-                        currentPage = pdfDoc.addPage(); currentPage.pageNumber = entry.otherData.pageNum; y = currentPage.getHeight() - margin;
-                        currentPage.drawText(`(Content from original page ${entry.otherData.pageNum})`, { x: margin, y: y, font: customFont, size: 8, color: rgb(0.5, 0.5, 0.5) });
-                        y -= 20;
-                    }
-                    const { width } = currentPage.getSize(), textMaxWidth = width - 2 * margin;
-                    const originalLines = wrapText(`[Original]: ${entry.text_original}`, customFont, defaultFontSize - 1, textMaxWidth);
-                    for (const line of originalLines) { if (y < margin) { currentPage = pdfDoc.addPage(); y = currentPage.getHeight() - margin; } currentPage.drawText(line, { x: margin, y: y, font: customFont, size: defaultFontSize - 1, color: rgb(0.4, 0.4, 0.4), lineHeight: 14 }); y -= 14; }
-                    y -= 5;
-                    const translatedLines = wrapText(entry.text, customFont, defaultFontSize, textMaxWidth);
-                    for (const line of translatedLines) { if (y < margin) { currentPage = pdfDoc.addPage(); y = currentPage.getHeight() - margin; } currentPage.drawText(line, { x: margin, y: y, font: customFont, size: defaultFontSize, color: rgb(0, 0, 0), lineHeight: 15 }); y -= 15; }
-                    y -= 20;
-                }
-                const pdfBytes = await pdfDoc.save(); logMessage('PDF generation complete. Triggering download.');
-                const targetLang = currentTargetLangForRetry || langInput.value.trim();
-                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.pdf`;
-                document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
-            } catch (error) { console.error("Error generating PDF:", error); showError(`Could not generate the PDF file: ${error.message}`); }
-        }
-
-        async function generateTranslatedOnlyPdfDownload() {
-            const { PDFDocument, rgb } = PDFLib;
-            try {
-                logMessage('Starting translated-only PDF generation...');
-                const pdfDoc = await PDFDocument.create();
-                pdfDoc.registerFontkit(fontkit);
-
-                logMessage('Downloading Vazirmatn font for PDF embedding...');
                 const fontUrl = 'https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@latest/fonts/ttf/Vazirmatn-Regular.ttf';
                 const fontBytes = await fetch(fontUrl).then(res => res.arrayBuffer());
                 const customFont = await pdfDoc.embedFont(fontBytes);
@@ -1155,86 +1163,69 @@ Original Text:
                 const textMaxWidth = width - 2 * margin;
 
                 function wrapText(text, font, size, maxWidth) {
-                    const lines = [];
-                    let currentLine = '';
-                    const words = text.replace(/\n/g, ' \n ').split(' ');
+                    const lines = []; let currentLine = ''; const words = text.replace(/\n/g, ' \n ').split(' ');
                     for (const word of words) {
-                        if (word === '\n') {
-                            lines.push(currentLine);
-                            currentLine = '';
-                            continue;
-                        }
+                        if (word === '\n') { lines.push(currentLine); currentLine = ''; continue; }
                         const potentialLine = currentLine === '' ? word : `${currentLine} ${word}`;
-                        if (font.widthOfTextAtSize(potentialLine, size) < maxWidth) {
-                            currentLine = potentialLine;
-                        } else {
-                            lines.push(currentLine);
-                            currentLine = word;
-                        }
+                        if (font.widthOfTextAtSize(potentialLine, size) < maxWidth) { currentLine = potentialLine; } 
+                        else { lines.push(currentLine); currentLine = word; }
                     }
-                    lines.push(currentLine);
-                    return lines;
+                    lines.push(currentLine); return lines;
                 }
-
-                for (const entry of currentAllTranslatedEntries) {
-                    const translatedLines = wrapText(entry.text, customFont, defaultFontSize, textMaxWidth);
+                
+                for (const chunkData of translatedChunksData) {
+                    // Clean the text by filtering out empty or whitespace-only lines
+                    const translatedLines = chunkData.translatedText
+                        .split('\n')
+                        .filter(line => line.trim() !== '');
 
                     for (const line of translatedLines) {
-                        if (y < margin) {
-                            currentPage = pdfDoc.addPage();
-                            y = currentPage.getHeight() - margin;
+                        const wrappedLines = wrapText(line, customFont, defaultFontSize, textMaxWidth);
+                        for(const wrapped of wrappedLines) {
+                            if (y < margin) { currentPage = pdfDoc.addPage(); y = currentPage.getHeight() - margin; }
+                            const isLineRtl = isRtl(wrapped);
+                            const lineWidth = customFont.widthOfTextAtSize(wrapped, defaultFontSize);
+                            const x = isLineRtl ? width - margin - lineWidth : margin;
+                            currentPage.drawText(wrapped, { x, y, font: customFont, size: defaultFontSize, color: rgb(0, 0, 0), lineHeight: 15 });
+                            y -= 15;
                         }
-                        currentPage.drawText(line, {
-                            x: margin,
-                            y: y,
-                            font: customFont,
-                            size: defaultFontSize,
-                            color: rgb(0, 0, 0),
-                            lineHeight: 15
-                        });
-                        y -= 15;
                     }
-                    y -= 20;
+                    y -= 10; // Reduced space between chunks for a tighter look
                 }
-
                 const pdfBytes = await pdfDoc.save();
                 logMessage('PDF generation complete. Triggering download.');
-
                 const targetLang = currentTargetLangForRetry || langInput.value.trim();
                 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = `${currentOriginalFileName}_${targetLang}_translated_only.pdf`;
-                document.body.appendChild(a);
-                a.click();
-                URL.revokeObjectURL(url);
-                a.remove();
-            } catch (error) {
-                console.error("Error generating translated-only PDF:", error);
-                showError(`Could not generate the translated-only PDF file: ${error.message}`);
-            }
+                const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.pdf`;
+                document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
+            } catch (error) { console.error("Error generating PDF:", error); showError(`Could not generate the PDF file: ${error.message}`); }
         }
-
+        
         async function generateDocxDownload() {
             try {
-                const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = docx;
+                const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx;
                 logMessage('Starting DOCX generation...');
-                const targetLang = currentTargetLangForRetry || langInput.value.trim();
-                const paragraphs = [
-                    new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER, children: [new TextRun(`Translation of: ${currentOriginalFileName}`)] }),
-                    new Paragraph({ alignment: AlignmentType.CENTER, children: [ new TextRun({ text: `Target Language: ${targetLang}`, italics: true, size: 24 }) ] }),
-                    new Paragraph({ text: "" }),
-                ];
-                currentAllTranslatedEntries.forEach(entry => {
-                    paragraphs.push(new Paragraph({ heading: HeadingLevel.HEADING_4, children: [ new TextRun({ text: `ID: ${entry.id} (Original Page ${entry.otherData.pageNum})`, color: "808080", size: 18 }) ] }));
-                    paragraphs.push(new Paragraph({ children: [ new TextRun({ text: "[Original]: ", bold: true }), new TextRun(entry.text_original) ] }));
-                    paragraphs.push(new Paragraph({ children: [ new TextRun({ text: "[Translated]: ", bold: true, color: "0000FF" }), new TextRun(entry.text) ] }));
-                    paragraphs.push(new Paragraph({ text: "" }));
+                
+                const paragraphs = translatedChunksData.flatMap(chunkData => {
+                    // Clean the text by filtering out empty or whitespace-only lines
+                    return chunkData.translatedText
+                        .split('\n')
+                        .filter(line => line.trim() !== '')
+                        .map(textLine => {
+                            const isTextRtl = isRtl(textLine);
+                            return new Paragraph({
+                                children: [new TextRun(textLine)],
+                                alignment: isTextRtl ? AlignmentType.RIGHT : AlignmentType.LEFT,
+                                bidirectional: true
+                            });
+                        });
                 });
-                const doc = new Document({ sections: [{ properties: {}, children: paragraphs }] });
-                const blob = await Packer.toBlob(doc); logMessage('DOCX generation complete. Triggering download.');
+
+                const doc = new Document({ sections: [{ children: paragraphs }] });
+                const blob = await Packer.toBlob(doc);
+                logMessage('DOCX generation complete. Triggering download.');
+                const targetLang = currentTargetLangForRetry || langInput.value.trim();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a'); a.style.display = 'none'; a.href = url; a.download = `${currentOriginalFileName}_${targetLang}.docx`;
                 document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
@@ -1282,21 +1273,36 @@ Original Text:
         }
         
         async function handleIndividualRetranslate(button) {
-            const icon = button.querySelector('i'), tr = button.closest('tr'); if (!tr) return;
-            const entryIndex = parseInt(tr.dataset.index, 10), entryData = currentAllTranslatedEntries[entryIndex], originalText = entryData.text_original;
-            if (!originalText) { showError("No original text found."); return; }
-            icon.classList.add('fa-spin'); button.disabled = true;
+            const icon = button.querySelector('i');
+            const tr = button.closest('tr');
+            if (!tr) return;
+
+            const chunkIndex = parseInt(tr.dataset.index, 10);
+            const chunkData = translatedChunksData[chunkIndex];
+            const originalText = chunkData.originalText;
+
+            if (!originalText) { showError("No original text found for this chunk."); return; }
+            
+            icon.classList.add('fa-spin');
+            button.disabled = true;
+
             try {
-                const translatedLines = await translateChunkRecursively([{ text: originalText }], currentApiKey, currentTargetLangForRetry, currentModel, currentTemperature, 0);
-                if (translatedLines && translatedLines.length > 0) {
-                    const newText = translatedLines[0];
-                    tr.querySelector('textarea').value = newText;
-                    currentAllTranslatedEntries[entryIndex].text = newText;
-                    updateTranslationMemory(originalText, newText, currentTargetLangForRetry);
-                    autoResizeTextarea(tr.querySelector('textarea'));
+                // Since `translateChunk` expects an array of paragraph objects, we'll create a dummy one.
+                const dummyChunk = [{ text: originalText }]; 
+                const newTranslatedBlock = await translateChunkRecursively(dummyChunk, currentApiKey, currentTargetLangForRetry, currentModel, currentTemperature, 0);
+
+                if (newTranslatedBlock) {
+                    const translatedTextarea = tr.querySelector('textarea:not([readonly])');
+                    translatedTextarea.value = newTranslatedBlock;
+                    translatedChunksData[chunkIndex].translatedText = newTranslatedBlock;
+                    autoResizeTextarea(translatedTextarea);
                 }
-            } catch (error) { showError(`Failed to re-translate: ${error.message}`); }
-            finally { icon.classList.remove('fa-spin'); button.disabled = false; }
+            } catch (error) {
+                showError(`Failed to re-translate chunk: ${error.message}`);
+            } finally {
+                icon.classList.remove('fa-spin');
+                button.disabled = false;
+            }
         }
 
         function showFindReplaceModal() {
@@ -1407,7 +1413,8 @@ Original Text:
             separatorInput = document.getElementById('separator-input');
             promptTemplateInput = document.getElementById('prompt-template-input');
             noCensorCheckbox = document.getElementById('no-censor-checkbox');
-            toneInput = document.getElementById('tone-input');
+            toneSelect = document.getElementById('tone-select');
+            toneCustomInput = document.getElementById('tone-custom-input');
             apiKeySelect = document.getElementById('api-key-select');
             newKeyNameInput = document.getElementById('new-key-name');
             newKeyValueInput = document.getElementById('new-key-value');
@@ -1431,6 +1438,14 @@ Original Text:
             updateLanguage(localStorage.getItem('language') === 'fa' ? 'fa' : 'en');
             goToStep(1);
             languageToggle.addEventListener('click', () => updateLanguage(uiLang === 'en' ? 'fa' : 'en'));
+            toneSelect.addEventListener('change', () => {
+                if (toneSelect.value === 'custom') {
+                    toneCustomInput.classList.remove('hidden');
+                    toneCustomInput.focus();
+                } else {
+                    toneCustomInput.classList.add('hidden');
+                }
+            });
             clearMemoryButton.addEventListener('click', clearTranslationMemory);
             togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
             addKeyBtn.addEventListener('click', handleAddKey);
@@ -1447,7 +1462,7 @@ Original Text:
             toggleLogBtnEditor.addEventListener('click', toggleLog);
             toggleLogBtnProgress.addEventListener('click', toggleLog);
             clearLogBtn.addEventListener('click', clearLog);
-            copyLogBtn.addEventListener('click', () => { navigator.clipboard.writeText(logOutput.innerText).then(() => { const originalText = i18n[uiLang].logCopy; copyLogBtn.querySelector('span').textContent = i18n[uiLang].logCopied; setTimeout(() => { copyLogBtn.querySelector('span').textContent = originalText; }, 2000); }); });
+            copyLogBtn.addEventListener('click', () => { navigator.clipboard.writeText(logOutput.innerText).then(() => { const originalText = i18n[uiLang].logCopy; copyLogBtn.querySelector('span').textContent = i18n[uiLang].logCopied; setTimeout(() => { copyLogBtn.querySelector('span').textContent = originalText; }, 4000); }); });
             chunkStrategyRadios.forEach(radio => radio.addEventListener('change', (e) => { manualChunkContainer.style.display = e.target.value === 'manual' ? 'block' : 'none'; }));
             modalSwitchBtn.addEventListener('click', () => { if (resolveModalPromise) { const [newApiKey, newModel] = modalComboSelect.value.split('|'); resolveModalPromise({ choice: 'switch', newModel, newApiKey }); resolveModalPromise=null; hideModal();} });
             modalCancelBtn.addEventListener('click', () => { if(resolveModalPromise) { resolveModalPromise({ choice: 'cancel' }); resolveModalPromise=null; hideModal(); } });
@@ -1477,15 +1492,11 @@ Original Text:
             const downloadDocxBtn = document.getElementById('download-docx-btn');
             const downloadPdfBtn = document.getElementById('download-pdf-btn');
             const downloadTxtBtn = document.getElementById('download-txt-btn');
-            const downloadTxtTranslatedBtn = document.getElementById('download-txt-translated-btn');
-            const downloadPdfTranslatedBtn = document.getElementById('download-pdf-translated-btn');
             downloadDropdownToggle.addEventListener('click', () => { downloadDropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', (event) => { if (!downloadBtnContainer.contains(event.target)) { downloadDropdownMenu.classList.add('hidden'); } });
             downloadDocxBtn.addEventListener('click', (e) => { e.preventDefault(); generateDocxDownload(); downloadDropdownMenu.classList.add('hidden'); });
             downloadPdfBtn.addEventListener('click', (e) => { e.preventDefault(); generateReflowedPdfDownload(); downloadDropdownMenu.classList.add('hidden'); });
             downloadTxtBtn.addEventListener('click', (e) => { e.preventDefault(); generateTxtDownload(); downloadDropdownMenu.classList.add('hidden'); });
-            downloadTxtTranslatedBtn.addEventListener('click', (e) => { e.preventDefault(); generateTranslatedOnlyTxtDownload(); downloadDropdownMenu.classList.add('hidden'); });
-            downloadPdfTranslatedBtn.addEventListener('click', (e) => { e.preventDefault(); generateTranslatedOnlyPdfDownload(); downloadDropdownMenu.classList.add('hidden'); });
         });
     </script>
 
