@@ -334,7 +334,7 @@ Original Text:
                         </button>
                         
                         <!-- New Dropdown Download Button -->
-                        <div id="download-btn-container" class="relative">
+                        <div id="download-btn-container" class="relative z-20">
                             <button id="download-dropdown-toggle" class="px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg inline-flex items-center">
                                 <i class="fas fa-download me-2"></i>
                                 <span data-i18n="downloadFile">Download File</span>
@@ -945,45 +945,30 @@ Original Text:
         }
 
         async function translateChunk(chunk, apiKey, targetLang, model, temperature, requestDelay) {
-            const textsToTranslate = [], cachedResults = new Map();
             const override = sessionOverrides[`${apiKey}|${model}`];
-            let effectiveApiKey = override ? override.newApiKey : apiKey, effectiveModel = override ? override.newModel : model;
-            
-            // NOTE: The translation memory is less effective in this mode, as it checks paragraph by paragraph.
-            // We'll keep it for cases where a whole chunk might be identical, but it's less likely.
-            chunk.forEach((entry, index) => { 
-                const cached = findInTranslationMemory(entry.text, targetLang); 
-                if (cached) {
-                    cachedResults.set(index, cached); 
-                } else {
-                    textsToTranslate.push({ originalIndex: index, ...entry }); 
-                }
-            });
-            
-            // If the entire chunk was cached, return the cached results.
-            if (textsToTranslate.length === 0) {
-                 return Array.from({ length: chunk.length }, (_, i) => cachedResults.get(i));
-            }
-            
-            // Fetch the translation for the entire chunk as one block.
-            const translatedBlock = await translateChunkRecursively(textsToTranslate, effectiveApiKey, targetLang, effectiveModel, temperature, requestDelay);
-            
-            // Create the final result array.
-            const finalTranslations = Array(chunk.length).fill('');
-            
-            // Place the entire translated block in the first position of the chunk's results.
-            if (textsToTranslate.length > 0) {
-                const firstOriginalIndex = textsToTranslate[0].originalIndex;
-                finalTranslations[firstOriginalIndex] = translatedBlock;
-            }
+            let effectiveApiKey = override ? override.newApiKey : apiKey;
+            let effectiveModel = override ? override.newModel : model;
 
-            // Fill in any results that were found in memory.
-            cachedResults.forEach((value, key) => {
-                finalTranslations[key] = value;
-            });
+            // New Caching Strategy: Check if the entire combined chunk exists in memory.
+            const combinedOriginalText = chunk.map(entry => entry.text).join('\n\n');
+            const cached = findInTranslationMemory(combinedOriginalText, targetLang);
+            if (cached) {
+                logMessage(`Chunk found in memory. Skipping API call.`);
+                // Still apply a small delay to prevent the UI from locking up on cached-only translations
+                await new Promise(resolve => setTimeout(resolve, 50)); 
+                return cached;
+            }
+            
+            // This function internally combines the chunk text and returns a single string block.
+            const translatedBlock = await translateChunkRecursively(chunk, effectiveApiKey, targetLang, effectiveModel, temperature, requestDelay);
+            
+            // Update memory with the new block-level translation.
+            updateTranslationMemory(combinedOriginalText, translatedBlock, targetLang);
             
             await new Promise(resolve => setTimeout(resolve, requestDelay));
-            return finalTranslations;
+            
+            // CRITICAL FIX: Return the translated string directly.
+            return translatedBlock;
         }
 
         async function handleTranslate(event) {
