@@ -280,7 +280,13 @@ Original Text:
         <div id="results-area" style="display: none;">
             <!-- Progress Bar -->
             <div id="progress-container" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-                <h2 class="text-2xl font-bold mb-4" data-i18n="progressTitle">Translation in Progress...</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold" data-i18n="progressTitle">Translation in Progress...</h2>
+                    <!-- NEW: Button to toggle log during translation -->
+                    <button id="toggle-log-btn-progress" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <i class="fas fa-clipboard-list me-2"></i><span data-i18n="logTitle">Live Log</span>
+                    </button>
+                </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-2">
                     <div id="progress" class="bg-primary-600 h-4 rounded-full" style="width: 0%"></div>
                 </div>
@@ -289,6 +295,18 @@ Original Text:
                     <span id="chunk-status">...</span>
                     <span id="time-estimate" data-i18n="progressEstimating">Estimating...</span>
                 </div>
+            </div>
+            
+            <!-- Log Viewer (MOVED OUTSIDE OF EDITOR) -->
+            <div id="log-viewer-container" class="my-4 border rounded-lg bg-gray-900 text-white font-mono text-xs p-4" style="display: none;">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="font-bold text-gray-300" data-i18n="logTitle">Live Log</h3>
+                    <div>
+                         <button id="copy-log-btn" class="px-2 py-1 bg-gray-700 rounded hover:bg-gray-600 text-gray-300"><i class="fas fa-copy me-1"></i> <span data-i18n="logCopy">Copy</span></button>
+                         <button id="clear-log-btn" class="px-2 py-1 bg-gray-700 rounded hover:bg-gray-600 text-gray-300 ms-2"><i class="fas fa-trash me-1"></i> <span data-i18n="logClear">Clear</span></button>
+                    </div>
+                </div>
+                <div id="log-output" class="max-h-60 overflow-y-auto bg-black p-2 rounded"></div>
             </div>
 
             <!-- Editor View -->
@@ -299,7 +317,8 @@ Original Text:
                         <button id="find-replace-btn" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
                             <i class="fas fa-search me-2"></i><span data-i18n="findReplace">Find/Replace</span>
                         </button>
-                        <button id="toggle-log-btn" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <!-- RENAMED ID -->
+                        <button id="toggle-log-btn-editor" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
                             <i class="fas fa-clipboard-list me-2"></i><span data-i18n="logTitle">Live Log</span>
                         </button>
                         <button id="start-new-from-editor-btn" class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">
@@ -348,18 +367,6 @@ Original Text:
                     </div>
                 </div>
                 
-                 <!-- Log Viewer -->
-                <div id="log-viewer-container" class="my-4 border rounded-lg bg-gray-900 text-white font-mono text-xs p-4" style="display: none;">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-gray-300" data-i18n="logTitle">Live Log</h3>
-                        <div>
-                             <button id="copy-log-btn" class="px-2 py-1 bg-gray-700 rounded hover:bg-gray-600 text-gray-300"><i class="fas fa-copy me-1"></i> <span data-i18n="logCopy">Copy</span></button>
-                             <button id="clear-log-btn" class="px-2 py-1 bg-gray-700 rounded hover:bg-gray-600 text-gray-300 ms-2"><i class="fas fa-trash me-1"></i> <span data-i18n="logClear">Clear</span></button>
-                        </div>
-                    </div>
-                    <div id="log-output" class="max-h-60 overflow-y-auto bg-black p-2 rounded"></div>
-                </div>
-
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -528,7 +535,7 @@ Original Text:
         let fileFeedbackDiv, fileNameSpan, removeFileBtn, errorContentDiv;
         let myDropzone;
         let editorContainer, editorTbody, startNewFromEditorBtn;
-        let logViewerContainer, logOutput, toggleLogBtn, copyLogBtn, clearLogBtn;
+        let logViewerContainer, logOutput, toggleLogBtnEditor, toggleLogBtnProgress, copyLogBtn, clearLogBtn;
         let chunkStrategyRadios, manualChunkContainer, chunkCountManualInput, requestDelayInput;
         let modelSwitchModal, modelSwitchDialog, modalSwitchBtn, modalCancelBtn, modalComboSelect;
         let separatorInput, promptTemplateInput, noCensorCheckbox, toneInput;
@@ -1357,7 +1364,8 @@ Original Text:
             startNewFromEditorBtn = document.getElementById('start-new-from-editor-btn');
             logViewerContainer = document.getElementById('log-viewer-container');
             logOutput = document.getElementById('log-output');
-            toggleLogBtn = document.getElementById('toggle-log-btn');
+            toggleLogBtnEditor = document.getElementById('toggle-log-btn-editor');
+            toggleLogBtnProgress = document.getElementById('toggle-log-btn-progress');
             copyLogBtn = document.getElementById('copy-log-btn');
             clearLogBtn = document.getElementById('clear-log-btn');
             chunkStrategyRadios = document.querySelectorAll('input[name="chunk_strategy"]');
@@ -1408,7 +1416,9 @@ Original Text:
             removeFileBtn.addEventListener('click', () => myDropzone.removeAllFiles(true));
             translateForm.addEventListener('submit', handleTranslate);
             startNewFromEditorBtn.addEventListener('click', resetWizard);
-            toggleLogBtn.addEventListener('click', () => { logViewerContainer.style.display = logViewerContainer.style.display === 'none' ? 'block' : 'none'; });
+            const toggleLog = () => { logViewerContainer.style.display = logViewerContainer.style.display === 'none' ? 'block' : 'none'; };
+            toggleLogBtnEditor.addEventListener('click', toggleLog);
+            toggleLogBtnProgress.addEventListener('click', toggleLog);
             clearLogBtn.addEventListener('click', clearLog);
             copyLogBtn.addEventListener('click', () => { navigator.clipboard.writeText(logOutput.innerText).then(() => { const originalText = i18n[uiLang].logCopy; copyLogBtn.querySelector('span').textContent = i18n[uiLang].logCopied; setTimeout(() => { copyLogBtn.querySelector('span').textContent = originalText; }, 2000); }); });
             chunkStrategyRadios.forEach(radio => radio.addEventListener('change', (e) => { manualChunkContainer.style.display = e.target.value === 'manual' ? 'block' : 'none'; }));
