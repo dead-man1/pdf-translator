@@ -894,20 +894,41 @@ Original Text:
                 throw new Error(`API error ${response.status}: ${await response.text()}`);
             }
             const data = await response.json();
-            const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                        const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (responseText === undefined) throw new Error('Invalid API response structure. No text found.');
+            
+            const separator = separatorInput.value.replace(/\\n/g, '\n');
             const receivedLines = responseText.trim().split(separator.trim());
             const finalTranslations = [];
-                        // Check if the AI returned a different number of lines
+
+            // Scenario 1: Line counts do NOT match. Accept the translation and merge it.
             if (receivedLines.length !== chunk.length && responseText.trim() !== "") {
-                logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Merging result into the first line.`, 'warn');
+                logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Merging result into a single block.`, 'warn');
                 
-                // Put the entire AI response in the first line's translation
-                finalTranslations.push(responseText.trim());
+                // Create a regular expression to safely replace all occurrences of the separator.
+                const separatorRegex = new RegExp(separator.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
                 
-                // Leave the other corresponding lines empty, as they have been merged
+                // Replace every "|||" with a line break "\n" to create a clean paragraph.
+                const mergedTranslation = responseText.trim().replace(separatorRegex, '\n');
+                
+                // Assign the complete, merged translation to the first line's slot.
+                finalTranslations.push(mergedTranslation);
+
+                // Fill the remaining slots for this chunk with empty strings, as they've been merged.
                 for (let i = 1; i < chunk.length; i++) {
-                    finalTranslations.push(''); 
+                    finalTranslations.push('');
+                }
+
+            // Scenario 2: Line counts match. Assign them one-to-one.
+            } else {
+                for (let i = 0; i < chunk.length; i++) {
+                    // If a line exists, use it. Otherwise, use an empty string (never the original text).
+                    finalTranslations.push((receivedLines[i] && receivedLines[i].trim() !== '') ? receivedLines[i].trim() : '');
+                }
+            }
+
+            logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
+            return finalTranslations; 
                 }
 
             } else {
