@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Translator - AI-Powered Translation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        /* Custom styles for PDF translation */
+        .pdf-preview {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .page-divider {
+            border-top: 1px dashed #cbd5e1;
+            margin: 1rem 0;
+            padding-top: 1rem;
+        }
+        .lang-fa {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2" data-i18n="pageTitle">PDF Translator</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400" data-i18n="pageSubtitle">AI-Powered Translation</p>
+            <div class="mt-4 flex justify-center">
+                <button id="languageToggle" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-language mr-2"></i>
+                    <span>فارسی</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Progress Steps -->
+            <div class="flex justify-between mb-10 relative">
+                <div id="step-1-indicator" class="group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0 border-s-4 ps-4 md:border-s-0 md:ps-0 border-green-500">
+                    <span class="text-sm font-medium text-green-600 dark:text-green-400" data-i18n="step1Indicator">Step 1</span>
+                    <span class="text-sm font-medium text-green-600 dark:text-green-400" data-i18n="step1Name">API Setup</span>
+                </div>
+                <div id="step-2-indicator" class="group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0 border-s-4 ps-4 md:border-s-0 md:ps-0 border-gray-200 dark:border-gray-700">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400" data-i18n="step2Indicator">Step 2</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400" data-i18n="step2Name">Add PDF</span>
+                </div>
+                <div id="step-3-indicator" class="group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0 border-s-4 ps-4 md:border-s-0 md:ps-0 border-gray-200 dark:border-gray-700">
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400" data-i18n="step3Indicator">Step 3</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400" data-i18n="step3Name">Translate</span>
+                </div>
+            </div>
+
+            <!-- Form Container -->
+            <div id="form-container" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                <form id="translate-form">
+                    <!-- Step 1: API Configuration -->
+                    <div id="step-1" data-step="1" class="step-section active">
+                        <h2 class="text-xl font-bold mb-4" data-i18n="step1Title">Step 1: Configure Your API Key</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6" data-i18n="step1Description">
+                            This tool uses the Gemini API. Please provide your API key to proceed. Your key is stored locally in your browser and is never sent to our servers.
+                        </p>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" data-i18n="selectApiKeyLabel">Select an API Key</label>
+                            <div class="flex gap-2">
+                                <select id="api-key-select" class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                    <option value="" data-i18n="noKeysAdded">No keys added yet. Add one below.</option>
+                                </select>
+                                <button id="delete-key-btn" type="button" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h3 class="text-lg font-medium mb-3" data-i18n="addNewKeyTitle">Add a New Key</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" data-i18n="newKeyNameLabel">Key Name (e.g., "Personal", "Work")</label>
+                                    <input type="text" id="new-key-name" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700" placeholder="Personal">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-1" data-i18n="newKeyValueLabel">API Key Value</label>
+                                    <div class="relative">
+                                        <input type="password" id="new-key-value" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 pr-12" placeholder="AIza...">
+                                        <button id="togglePasswordBtn" type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button id="add-key-btn" type="button" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    <span data-i18n="addKeyBtn">Add Key</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-6" data-i18n-html="getApiKeyLink">
+                            Get your free key from <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a>.
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button id="next-to-step-2" type="button" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <span data-i18n="next">Next</span>
+                                <i class="fas fa-arrow-right ml-2 next-btn-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: PDF Upload -->
+                    <div id="step-2" data-step="2" class="step-section hidden">
+                        <h2 class="text-xl font-bold mb-4" data-i18n="step2Title">Step 2: Add Your PDF</h2>
+                        
+                        <div class="mb-6">
+                            <div id="file-input-container" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center bg-gray-50 dark:bg-gray-700/50 transition-colors">
+                                <div id="dropzone-upload" class="cursor-pointer">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                                    <p class="text-lg font-medium mb-1" data-i18n="dropzone">Drag & drop PDF file</p>
+                                    <p class="text-gray-500 dark:text-gray-400 mb-4">
+                                        <span data-i18n="dropzoneOr">or</span>
+                                    </p>
+                                    <button id="choose-file-btn" type="button" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                                        <span data-i18n="dropzoneChoose">Choose File</span>
+                                    </button>
+                                </div>
+                                <div id="file-feedback" class="hidden mt-4">
+                                    <div class="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg">
+                                        <i class="fas fa-file-pdf mr-2"></i>
+                                        <span id="file-name" class="font-medium"></span>
+                                        <button id="remove-file" type="button" class="ml-3 text-red-500 hover:text-red-700">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button id="back-to-step-1" type="button" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                                <i class="fas fa-arrow-left mr-2 back-btn-icon"></i>
+                                <span data-i18n="back">Back</span>
+                            </button>
+                            <button id="next-to-step-3" type="button" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <span data-i18n="next">Next</span>
+                                <i class="fas fa-arrow-right ml-2 next-btn-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Translation Settings -->
+                    <div id="step-3" data-step="3" class="step-section hidden">
+                        <h2 class="text-xl font-bold mb-4" data-i18n="step3Title">Step 3: Finalize and Translate</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" data-i18n="targetLangLabel">Target Language</label>
+                            <input type="text" id="lang-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700" placeholder="e.g., Spanish, French, Japanese" value="Spanish">
+                        </div>
+
+                        <div class="mb-6">
+                            <button type="button" id="advanced-settings-toggle" class="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-3">
+                                <i class="fas fa-cog mr-2"></i>
+                                <span data-i18n="advancedSettings">Advanced Settings</span>
+                                <i class="fas fa-chevron-down ml-2 transition-transform"></i>
+                            </button>
+                            
+                            <div id="advanced-settings" class="hidden bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-4">
+                                <p class="text-sm text-yellow-600 dark:text-yellow-400 mb-4" data-i18n="advancedWarning">
+                                    Adjusting these settings can affect performance, cost, and quality. Proceed with caution.
+                                </p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" data-i18n="modelLabel">AI Model</label>
+                                        <select id="model" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                                            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
+                                            <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" data-i18n="temperatureLabel">Temperature</label>
+                                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" class="w-full">
+                                        <div class="flex justify-between text-xs text-gray-500">
+                                            <span>Precise</span>
+                                            <span>Balanced</span>
+                                            <span>Creative</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" data-i18n="chunkStrategyLabel">Chunking Strategy</label>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="chunk_strategy" value="default" checked class="mr-2">
+                                                <span data-i18n="chunkStrategyDefault">Default</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="chunk_strategy" value="auto" class="mr-2">
+                                                <span data-i18n="chunkStrategyAuto">Automatic</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="chunk_strategy" value="manual" class="mr-2">
+                                                <span data-i18n="chunkStrategyManual">Manual</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="manual_chunk_container" class="hidden">
+                                        <label class="block text-sm font-medium mb-1" data-i18n="chunkCountManualLabel">Number of Chunks</label>
+                                        <input type="number" id="chunk_count_manual" min="2" max="50" value="20" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1" data-i18n="requestDelayLabel">Request Delay (ms)</label>
+                                        <input type="number" id="request-delay" min="0" max="10000" step="100" value="4000" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                        <p class="text-xs text-gray-500 mt-1" data-i18n="requestDelayNote">Delay between each API request (e.g., 4000 for 15 RPM free tier).</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" id="useProxyCheckbox" class="mr-2">
+                                            <span data-i18n="useProxyLabel">Use Proxy</span>
+                                        </label>
+                                        <div id="custom-proxy-container" class="hidden mt-2">
+                                            <input type="text" id="custom-proxy-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700" placeholder="https://your-proxy.com">
+                                            <p class="text-xs text-gray-500 mt-1" data-i18n-html="customProxyNote">Deploy your own proxy using <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <h3 class="text-md font-medium mb-2" data-i18n="promptSettingsTitle">Prompt & Separator Settings</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1" data-i18n="customSeparatorLabel">Text Separator</label>
+                                            <input type="text" id="separator-input" value="\n\n" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                            <p class="text-xs text-gray-500 mt-1" data-i18n="customSeparatorNote">The string used to separate text lines. Use \n for newlines.</p>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1" data-i18n="translationToneLabel">Translation Tone</label>
+                                            <input type="text" id="tone-input" placeholder="e.g., formal, informal" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                                            <p class="text-xs text-gray-500 mt-1" data-i18n="translationToneNote">e.g., formal, informal, humorous, dramatic.</p>
+                                        </div>
+                                        
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-medium mb-1" data-i18n="customPromptLabel">Translation Prompt Template</label>
+                                            <textarea id="prompt-template-input" rows="3" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">Translate the following text to {LANG}. Maintain the original meaning and structure. {TEXT}</textarea>
+                                            <p class="text-xs text-gray-500 mt-1" data-i18n="customPromptNote">Use {LANG}, {TONE}, and {TEXT} as placeholders.</p>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" id="no-censor-checkbox" class="mr-2">
+                                                <span data-i18n="noCensorLabel">Add "uncensored" directive</span>
+                                            </label>
+                                            <p class="text-xs text-gray-500 mt-1" data-i18n="noCensorNote">Appends a request to the prompt to not censor explicit content.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button id="back-to-step-2" type="button" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                                <i class="fas fa-arrow-left mr-2 back-btn-icon"></i>
+                                <span data-i18n="back">Back</span>
+                            </button>
+                            <button id="submit-button" type="submit" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                                <i class="fas fa-language mr-2"></i>
+                                <span data-i18n="translateNow">Translate Now</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Area -->
+            <div id="results-area" class="hidden">
+                <!-- Progress Container -->
+                <div id="progress-container" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
+                    <h2 class="text-xl font-bold mb-4" data-i18n="progressTitle">Translation in Progress...</h2>
+                    
+                    <div class="mb-4">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4 mb-2">
+                            <div id="progress" class="bg-primary-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span id="progress-text">0% Complete</span>
+                            <span id="time-estimate">Estimating...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <span data-i18n="processingChunk">Processing chunk</span> <span id="chunk-status">...</span>
+                    </div>
+                    
+                    <div id="error-message" class="mt-4 p-4 rounded-xl flex items-start border hidden">
+                        <i class="fas fa-exclamation-circle text-red-500 text-xl mr-3 mt-0.5"></i>
+                        <div>
+                            <h3 class="text-md font-bold text-red-800 dark:text-red-200">An Error Occurred</h3>
+                            <p class="text-sm mt-2 text-red-700 dark:text-red-300"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editor Container -->
+                <div id="editor-container" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8 hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold" data-i18n="editTitle">Edit Your Translation</h2>
+                        <div class="flex space-x-2">
+                            <button id="find-replace-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                                <i class="fas fa-search-and-replace mr-2"></i>
+                                <span data-i18n="findReplace">Find/Replace</span>
+                            </button>
+                            <button id="toggle-log-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                                <i class="fas fa-terminal mr-2"></i>
+                                <span data-i18n="logTitle">Live Log</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-700">
+                                    <th class="px-4 py-2 text-center font-medium text-gray-900 dark:text-white" data-i18n="tableHeaderId">#</th>
+                                    <th class="px-6 py-2 text-left font-medium text-gray-900 dark:text-white" data-i18n="tableHeaderOriginal">Original Text</th>
+                                    <th class="px-6 py-2 text-left font-medium text-gray-900 dark:text-white" data-i18n="tableHeaderTranslated">Translated Text (Editable)</th>
+                                    <th class="px-4 py-2 text-center font-medium text-gray-900 dark:text-white" data-i18n="tableHeaderAction">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editor-tbody">
+                                <!-- Translation rows will be inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between mt-6">
+                        <button id="start-new-from-editor-btn" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                            <i class="fas fa-redo mr-2"></i>
+                            <span data-i18n="startNew">Start New</span>
+                        </button>
+                        <button id="download-edited-btn" class="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            <span data-i18n="downloadFile">Download File</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Log Viewer -->
+                <div id="log-viewer-container" class="bg-gray-800 text-gray-200 rounded-xl shadow-lg p-4 mb-8 hidden">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-medium" data-i18n="logTitle">Live Log</h3>
+                        <div class="flex space-x-2">
+                            <button id="copy-log-btn" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors">
+                                <i class="fas fa-copy mr-1"></i>
+                                <span data-i18n="logCopy">Copy</span>
+                            </button>
+                            <button id="clear-log-btn" class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm transition-colors">
+                                <i class="fas fa-trash mr-1"></i>
+                                <span data-i18n="logClear">Clear</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="log-output" class="font-mono text-sm h-40 overflow-y-auto bg-gray-900 p-3 rounded"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 dark:text-gray-400 text-sm mt-10">
+            <p data-i18n-html="footerText">Created with <i class="fas fa-heart text-red-500 mx-1"></i> by YEBEKHE</p>
+            <button id="clear-memory-button" class="mt-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                Clear Translation Memory
+            </button>
+        </footer>
+    </div>
+
+    <!-- Model Switch Modal -->
+    <div id="model-switch-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div id="model-switch-dialog" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full mx-4 transform transition-all opacity-0 scale-95">
+            <h3 class="text-xl font-bold mb-4" data-i18n="quotaModalTitle">Quota Reached</h3>
+            <p id="modal-message" class="mb-4"></p>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-2" data-i18n="quotaModalLabel">Switch to a different API Key / Model combination:</label>
+                <select id="modal-combo-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"></select>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6" data-i18n="quotaModalNote">The translation will resume from where it left off.</p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button id="modal-switch-btn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                    <span data-i18n="switchAndContinueBtn">Switch and Continue</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Find/Replace Modal -->
+    <div id="find-replace-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div id="find-replace-dialog" class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full mx-4 transform transition-all opacity-0 scale-95">
+            <h3 class="text-xl font-bold mb-4" data-i18n="findReplaceTitle">Find and Replace</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1" data-i18n="findLabel">Find</label>
+                    <input type="text" id="find-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1" data-i18n="replaceLabel">Replace with</label>
+                    <input type="text" id="replace-input" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700">
+                </div>
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="case-sensitive-checkbox" class="mr-2">
+                        <span data-i18n="caseSensitiveLabel">Case sensitive</span>
+                    </label>
+                </div>
+                <div id="find-replace-feedback" class="text-sm text-red-500"></div>
+            </div>
+            <div class="flex justify-between mt-6">
+                <button id="find-replace-close-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    Close
+                </button>
+                <div class="flex space-x-2">
+                    <button id="find-next-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                        <span data-i18n="findNextBtn">Find Next</span>
+                    </button>
+                    <button id="replace-btn" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                        <span data-i18n="replaceBtn">Replace</span>
+                    </button>
+                    <button id="replace-all-btn" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors">
+                        <span data-i18n="replaceAllBtn">Replace All</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- I18N DICTIONARY ---
+        const i18n = {
+            en: {
+                // General
+                'pageTitle': 'PDF Translator',
+                'pageSubtitle': 'AI-Powered Translation',
+                'mainHeading': 'Translate PDFs in 3 Easy Steps',
+                'mainSubheading': 'Follow the steps below to get your PDF translated by AI.',
+                'next': 'Next',
+                'back': 'Back',
+                'remove': 'Remove',
+                // Step Navigator
+                'step1Indicator': 'Step 1',
+                'step1Name': 'API Setup',
+                'step2Indicator': 'Step 2',
+                'step2Name': 'Add PDF',
+                'step3Indicator': 'Step 3',
+                'step3Name': 'Translate',
+                // Step 1: API
+                'step1Title': 'Step 1: Configure Your API Key',
+                'step1Description': 'This tool uses the Gemini API. Please provide your API key to proceed. Your key is stored locally in your browser and is never sent to our servers.',
+                'selectApiKeyLabel': 'Select an API Key',
+                'addNewKeyTitle': 'Add a New Key',
+                'newKeyNameLabel': 'Key Name (e.g., "Personal", "Work")',
+                'newKeyValueLabel': 'API Key Value',
+                'addKeyBtn': 'Add Key',
+                'deleteKeyBtn': 'Delete Key',
+                'noKeysAdded': 'No keys added yet. Add one below.',
+                'getApiKeyLink': "Get your free key from <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a>.",
+                // Step 2: Content
+                'step2Title': 'Step 2: Add Your PDF',
+                'fileUpload': 'Upload PDF',
+                'dropzone': "Drag & drop PDF file",
+                'dropzoneOr': "or",
+                'dropzoneChoose': "Choose File",
+                'fileSelected': "File selected:",
+                // Step 3: Translate & Advanced Settings
+                'step3Title': 'Step 3: Finalize and Translate',
+                'targetLangLabel': 'Target Language',
+                'targetLangPlaceholder': 'e.g., Spanish, French, Japanese',
+                'advancedSettings': 'Advanced Settings',
+                'advancedWarning': 'Adjusting these settings can affect performance, cost, and quality. Proceed with caution.',
+                'modelLabel': 'AI Model',
+                'temperatureLabel': 'Temperature',
+                'chunkStrategyLabel': 'Chunking Strategy',
+                'chunkStrategyDefault': 'Default',
+                'chunkStrategyAuto': 'Automatic',
+                'chunkStrategyManual': 'Manual',
+                'chunkCountManualLabel': 'Number of Chunks',
+                'requestDelayLabel': 'Request Delay (ms)',
+                'requestDelayNote': 'Delay between each API request (e.g., 4000 for 15 RPM free tier).',
+                'useProxyLabel': 'Use Proxy',
+                'customProxyLabel': 'Custom Proxy URL (Optional)',
+                'customProxyNote': 'Deploy your own proxy using <a href=\"https://github.com/yebekhe/middleman\" target=\"_blank\" class=\"underline hover:text-primary-400\">Middleman</a>.",
+                'promptSettingsTitle': 'Prompt & Separator Settings',
+                'customSeparatorLabel': 'Text Separator',
+                'customSeparatorNote': 'The string used to separate text lines. Use \\n for newlines.',
+                'translationToneLabel': 'Translation Tone',
+                'translationToneNote': 'e.g., formal, informal, humorous, dramatic.',
+                'customPromptLabel': 'Translation Prompt Template',
+                'customPromptNote': 'Use {LANG}, {TONE}, and {TEXT} as placeholders.',
+                'noCensorLabel': 'Add \"uncensored\" directive',
+                'noCensorNote': 'Appends a request to the prompt to not censor explicit content.',
+                'translateNow': 'Translate Now',
+                // Results Area
+                'progressTitle': 'Translation in Progress...',
+                'progressComplete': 'Complete',
+                'progressEstimating': 'Estimating...',
+                'progressCalculating': 'Calculating...',
+                'progressRemaining': 'remaining',
+                'processingChunk': 'Processing chunk',
+                'editTitle': 'Edit Your Translation',
+                'successTitle': 'Translation Complete!',
+                'successText': 'Your translated file is ready for download.',
+                'errorTitle': 'An Error Occurred',
+                'startNew': 'Start New',
+                'downloadFile': 'Download File',
+                'retryFailed': 'Retry Failed Chunks:',
+                'retryButton': 'Retry Chunk',
+                'retryingButton': 'Retrying...',
+                'findReplace': 'Find/Replace',
+                'tableHeaderId': '#',
+                'tableHeaderOriginal': 'Original Text',
+                'tableHeaderTranslated': 'Translated Text (Editable)',
+                'tableHeaderAction': 'Action',
+                'logTitle': 'Live Log',
+                'logCopy': 'Copy',
+                'logCopied': 'Copied!',
+                'logClear': 'Clear',
+                // Modals
+                'quotaModalTitle': 'Quota Reached',
+                'quotaModalLabel': 'Switch to a different API Key / Model combination:',
+                'quotaModalNote': 'The translation will resume from where it left off.',
+                'findReplaceTitle': 'Find and Replace',
+                'findLabel': 'Find',
+                'replaceLabel': 'Replace with',
+                'caseSensitiveLabel': 'Case sensitive',
+                'findNextBtn': 'Find Next',
+                'replaceBtn': 'Replace',
+                'replaceAllBtn': 'Replace All',
+                'switchAndContinueBtn': 'Switch and Continue',
+                'cancelTranslationBtn': 'Cancel Translation',
+                // Alerts & Confirmations
+                'clearMemoryConfirm': 'Are you sure you want to clear all saved translations from memory?',
+                'clearMemorySuccess': 'Translation memory cleared!',
+                'deleteKeyConfirm': 'Are you sure you want to delete the key "{keyName}"?',
+                'errorRequired': 'Both key name and value are required.',
+                'errorKeyExists': 'This API key has already been added.',
+                'errorNoFile': 'Please select a PDF file.',
+                'errorNoTranslatableText': 'No translatable text found in the PDF.',
+                'errorTranslationFailed': 'A critical error occurred: {error}',
+                'errorFindText': 'Please enter text to find.',
+                'errorFindEnd': 'End of document reached.',
+                'footerText': 'Created with <i class="fas fa-heart text-red-500 mx-1"></i> by YEBEKHE',
+            },
+            fa: {
+                // General
+                'pageTitle': 'مترجم PDF',
+                'pageSubtitle': 'ترجمه با هوش مصنوعی',
+                'mainHeading': 'ترجمه PDF در ۳ مرحله ساده',
+                'mainSubheading': 'برای ترجمه PDF خود توسط هوش مصنوعی، مراحل زیر را دنبال کنید.',
+                'next': 'بعدی',
+                'back': 'قبلی',
+                'remove': 'حذف',
+                // Step Navigator
+                'step1Indicator': 'مرحله ۱',
+                'step1Name': 'تنظیم API',
+                'step2Indicator': 'مرحله ۲',
+                'step2Name': 'افزودن PDF',
+                'step3Indicator': 'مرحله ۳',
+                'step3Name': 'ترجمه',
+                // Step 1: API
+                'step1Title': 'مرحله ۱: کلید API خود را پیکربندی کنید',
+                'step1Description': 'این ابزار از Gemini API استفاده می‌کند. لطفاً برای ادامه، کلید API خود را ارائه دهید. کلید شما به صورت محلی در مرورگرتان ذخیره می‌شود و هرگز به سرورهای ما ارسال نمی‌گردد.',
+                'selectApiKeyLabel': 'یک کلید API انتخاب کنید',
+                'addNewKeyTitle': 'افزودن کلید جدید',
+                'newKeyNameLabel': 'نام کلید (مثال: "شخصی"، "کاری")',
+                'newKeyValueLabel': 'مقدار کلید API',
+                'addKeyBtn': 'افزودن کلید',
+                'deleteKeyBtn': 'حذف کلید',
+                'noKeysAdded': 'هنوز کلیدی اضافه نشده است. یک کلید در پایین اضافه کنید.',
+                'getApiKeyLink': "کلید رایگان خود را از <a href='https://aistudio.google.com/app/apikey' target='_blank' class='font-medium underline hover:text-blue-600'>Google AI Studio</a> دریافت کنید.",
+                // Step 2: Content
+                'step2Title': 'مرحله ۲: PDF خود را اضافه کنید',
+                'fileUpload': 'بارگذاری PDF',
+                'dropzone': "فایل PDF را بکشید و رها کنید",
+                'dropzoneOr': "یا",
+                'dropzoneChoose': "انتخاب فایل",
+                'fileSelected': "فایل انتخاب شد:",
+                // Step 3: Translate & Advanced Settings
+                'step3Title': 'مرحله ۳: نهایی‌سازی و ترجمه',
+                'targetLangLabel': 'زبان مقصد',
+                'targetLangPlaceholder': 'مثال: اسپانیایی، فرانسوی، ژاپنی',
+                'advancedSettings': 'تنظیمات پیشرفته',
+                'advancedWarning': 'تنظیم این پارامترها می‌تواند بر عملکرد، هزینه و کیفیت ترجمه تأثیر بگذارد. با احتیاط عمل کنید.',
+                'modelLabel': 'مدل هوش مصنوعی',
+                'temperatureLabel': 'دما (خلاقیت)',
+                'chunkStrategyLabel': 'استراتژی تقسیم‌بندی',
+                'chunkStrategyDefault': 'پیش‌فرض',
+                'chunkStrategyAuto': 'خودکار',
+                'chunkStrategyManual': 'دستی',
+                'chunkCountManualLabel': 'تعداد بخش‌ها',
+                'requestDelayLabel': 'تأخیر بین درخواست‌ها (ms)',
+                'requestDelayNote': 'تأخیر بین هر درخواست API (مثال: 4000 برای طرح رایگان 15 RPM).',
+                'useProxyLabel': 'استفاده از پروکسی',
+                'customProxyLabel': 'آدرس پروکسی سفارشی (اختیاری)',
+                'customProxyNote': 'پروکسی خود را با استفاده از <a href="https://github.com/yebekhe/middleman" target="_blank" class="underline hover:text-primary-400">Middleman</a> راه‌اندازی کنید.',
+                'promptSettingsTitle': 'تنظیمات پرامپت و جداکننده',
+                'customSeparatorLabel': 'جداکننده متن',
+                'customSeparatorNote': 'رشته‌ای که برای جدا کردن خطوط متن ارسالی به هوش مصنوعی استفاده می‌شود. از \\n برای خط جدید استفاده کنید.',
+                'translationToneLabel': 'لحن ترجمه',
+                'translationToneNote': 'مثال: رسمی، غیررسمی، طنزآمیز، دراماتیک.',
+                'customPromptLabel': 'قالب پرامپت ترجمه',
+                'customPromptNote': 'از {LANG}، {TONE} و {TEXT} به عنوان placeholder استفاده کنید.',
+                'noCensorLabel': 'افزودن دستور "بدون سانسور"',
+                'noCensorNote': 'درخواستی به پرامپت اضافه می‌کند تا محتوای صریح سانسور نشود.',
+                'translateNow': 'شروع ترجمه',
+                // Results Area
+                'progressTitle': 'در حال ترجمه...',
+                'progressComplete': 'تکمیل شد',
+                'progressEstimating': 'در حال تخمین...',
+                'progressCalculating': 'در حال محاسبه...',
+                'progressRemaining': 'باقیمانده',
+                'processingChunk': 'در حال پردازش بخش',
+                'editTitle': 'ترجمه خود را ویرایش کنید',
+                'successTitle': 'ترجمه کامل شد!',
+                'successText': 'فایل ترجمه شده شما برای دانلود آماده است.',
+                'errorTitle': 'خطایی روی داد',
+                'startNew': 'شروع ترجمه جدید',
+                'downloadFile': 'دانلود فایل',
+                'retryFailed': 'تلاش مجدد برای بخش‌های ناموفق:',
+                'retryButton': 'تلاش مجدد',
+                'retryingButton': 'در حال تلاش...',
+                'findReplace': 'یافتن/جایگزینی',
+                'tableHeaderId': '#',
+                'tableHeaderOriginal': 'متن اصلی',
+                'tableHeaderTranslated': 'متن ترجمه‌شده (قابل ویرایش)',
+                'tableHeaderAction': 'عملیات',
+                'logTitle': 'لاگ زنده',
+                'logCopy': 'کپی',
+                'logCopied': 'کپی شد!',
+                'logClear': 'پاک‌سازی',
+                // Modals
+                'quotaModalTitle': 'محدودیت استفاده',
+                'quotaModalLabel': 'به یک ترکیب کلید API / مدل دیگر تغییر دهید:',
+                'quotaModalNote': 'ترجمه از جایی که متوقف شده بود ادامه خواهد یافت.',
+                'findReplaceTitle': 'یافتن و جایگزینی',
+                'findLabel': 'یافتن',
+                'replaceLabel': 'جایگزینی با',
+                'caseSensitiveLabel': 'حساس به حروف بزرگ و کوچک',
+                'findNextBtn': 'بعدی را بیاب',
+                'replaceBtn': 'جایگزین کن',
+                'replaceAllBtn': 'جایگزینی همه',
+                'switchAndContinueBtn': 'تغییر و ادامه',
+                'cancelTranslationBtn': 'لغو ترجمه',
+                // Alerts & Confirmations
+                'clearMemoryConfirm': 'آیا مطمئن هستید که می‌خواهید تمام ترجمه‌های ذخیره شده در حافظه را پاک کنید؟',
+                'clearMemorySuccess': 'حافظه ترجمه پاک شد!',
+                'deleteKeyConfirm': 'آیا از حذف کلید "{keyName}" مطمئن هستید؟',
+                'errorRequired': 'هر دو فیلد نام و مقدار کلید الزامی است.',
+                'errorKeyExists': 'این کلید API قبلاً اضافه شده است.',
+                'errorNoFile': 'لطفا یک فایل PDF انتخاب کنید.',
+                'errorNoTranslatableText': 'هیچ متن قابل ترجمه‌ای در PDF یافت نشد.',
+                'errorTranslationFailed': 'یک خطای اساسی رخ داد: {error}',
+                'errorFindText': 'لطفا متنی برای یافتن وارد کنید.',
+                'errorFindEnd': 'به انتهای سند رسیدید.',
+                'footerText': 'ساخته شده با <i class="fas fa-heart text-red-500 mx-1"></i> توسط YEBEKHE',
+            }
+        };
+
+        // --- Global Variables & State ---
+        const AVAILABLE_MODELS = [
+            'gemini-2.5-pro',
+            'gemini-2.5-flash',
+            'gemini-2.0-flash',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash-lite'
+        ];
+        
+        let uiLang = 'en';
+        let uploadedFile = null;
+        let translationMemory = JSON.parse(localStorage.getItem('translationMemory') || '{}');
+        let savedApiKeys = [];
+        let currentStep = 1;
+        let firstChunkTime = 0;
+        let failedChunksData = [];
+        let currentAllTranslatedEntries = [];
+        let currentOriginalFileName = 'translation';
+        let currentApiKey = '';
+        let currentModel = 'gemini-2.5-flash';
+        let currentTemperature = 0.7;
+        let currentRequestDelay = 4000;
+        let currentTargetLangForRetry = '';
+        const proxyUrl = 'https://middleman.yebekhe.workers.dev';
+        
+        // State for new features
+        let findState = {
+            lastFoundRow: -1,
+            lastFoundPos: -1,
+            currentQuery: ''
+        };
+        
+        // State for remembering user choices during a translation session
+        let sessionOverrides = {};
+        
+        // --- DOM Element References ---
+        let htmlElement, languageToggle, clearMemoryButton, translateForm, dropzoneElement, useProxyCheckbox, togglePasswordBtn, langInput, modelSelect, temperatureInput, progressContainer, progressBar, progressText, chunkStatusSpan, timeEstimateSpan, errorMessageDiv, submitButton;
+        let stepSections, stepIndicators, formContainer, resultsArea;
+        let nextToStep2Btn, nextToStep3Btn, backToStep1Btn, backToStep2Btns;
+        let selectFileInputBtn, fileInputContainer;
+        let fileFeedbackDiv, fileNameSpan, removeFileBtn, errorContentDiv;
+        let myDropzone;
+        let editorContainer, editorTbody, downloadEditedBtn, startNewFromEditorBtn;
+        let logViewerContainer, logOutput, toggleLogBtn, copyLogBtn, clearLogBtn;
+        let chunkStrategyRadios, manualChunkContainer, chunkCountManualInput, requestDelayInput;
+        let modelSwitchModal, modelSwitchDialog, modalSwitchBtn, modalCancelBtn, modalComboSelect;
+        let separatorInput, promptTemplateInput, noCensorCheckbox, toneInput;
+        let apiKeySelect, newKeyNameInput, newKeyValueInput, addKeyBtn, deleteKeyBtn;
+        let customProxyContainer, customProxyInput;
+        
+        // DOM references for new features
+        let findReplaceBtn, findReplaceModal, findReplaceDialog, findReplaceCloseBtn, findInput, replaceInput, caseSensitiveCheckbox, findNextBtn, replaceBtn, replaceAllBtn, findReplaceFeedback;
+        
+        // --- PDF.js Setup ---
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // --- UI & WIZARD MANAGEMENT ---
+        function updateLanguage(lang) {
+            uiLang = lang;
+            localStorage.setItem('language', lang);
+            const isRTL = lang === 'fa';
+            const translations = i18n[uiLang];
+            
+            document.documentElement.lang = lang;
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            if (isRTL) {
+                document.body.classList.add('lang-fa');
+            } else {
+                document.body.classList.remove('lang-fa');
+            }
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[key]) el.textContent = translations[key];
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[key]) el.placeholder = translations[key];
+            });
+            
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const key = el.getAttribute('data-i18n-html');
+                if (translations[key]) el.innerHTML = translations[key];
+            });
+            
+            // Handle dynamic elements and icons
+            document.querySelectorAll('.next-btn-icon').forEach(icon => {
+                icon.classList.toggle('fa-arrow-right', !isRTL);
+                icon.classList.toggle('fa-arrow-left', isRTL);
+            });
+            
+            document.querySelectorAll('.back-btn-icon').forEach(icon => {
+                icon.classList.toggle('fa-arrow-left', !isRTL);
+                icon.classList.toggle('fa-arrow-right', isRTL);
+            });
+            
+            loadApiKeys();
+        }
+        
+        function goToStep(stepNumber) {
+            currentStep = stepNumber;
+            stepSections.forEach(section => section.classList.add('hidden'));
+            document.getElementById(`step-${stepNumber}`).classList.remove('hidden');
+            
+            stepIndicators.forEach((indicator, index) => {
+                const step = index + 1;
+                const textSpans = indicator.querySelectorAll('span');
+                indicator.className = 'group flex flex-col py-2 md:border-t-4 md:pt-4 md:pb-0'; // Base classes
+                
+                // Direction-aware classes
+                if (document.documentElement.dir === 'rtl') {
+                    indicator.classList.add('border-e-4', 'pe-4', 'md:border-e-0', 'md:pe-0');
+                } else {
+                    indicator.classList.add('border-s-4', 'ps-4', 'md:border-s-0', 'md:ps-0');
+                }
+                
+                textSpans.forEach(span => span.className = 'text-sm font-medium');
+                if (step < stepNumber) {
+                    indicator.classList.add('border-green-500');
+                    textSpans.forEach(span => span.classList.add('text-green-600', 'dark:text-green-400'));
+                } else if (step === stepNumber) {
+                    indicator.classList.add('border-primary-600');
+                    textSpans.forEach(span => span.classList.add('text-primary-600'));
+                } else {
+                    indicator.classList.add('border-gray-200', 'dark:border-gray-700');
+                    textSpans.forEach(span => span.classList.add('text-gray-500', 'dark:text-gray-400'));
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            
+            // Run completion check for the newly activated step
+            switch (stepNumber) {
+                case 1:
+                    checkStep1Completion();
+                    break;
+                case 2:
+                    checkStep2Completion();
+                    break;
+            }
+        }
+        
+        function checkStep1Completion() {
+            if (nextToStep2Btn) nextToStep2Btn.disabled = !currentApiKey;
+        }
+        
+        function checkStep2Completion() {
+            const isFileReady = uploadedFile !== null;
+            if (nextToStep3Btn) nextToStep3Btn.disabled = !isFileReady;
+        }
+        
+        function resetWizard() {
+            if (resultsArea) resultsArea.classList.add('hidden');
+            if (formContainer) formContainer.classList.remove('hidden');
+            if (editorContainer) editorContainer.classList.add('hidden');
+            if (myDropzone) myDropzone.removeAllFiles(true);
+            
+            goToStep(1);
+            checkStep1Completion();
+            checkStep2Completion();
+        }
+        
+        function togglePasswordVisibility() {
+            const icon = togglePasswordBtn?.querySelector('i');
+            if (!icon || !newKeyValueInput) return;
+            
+            if (newKeyValueInput.type === 'password') {
+                newKeyValueInput.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                newKeyValueInput.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        
+        function showError(message, type = 'error') {
+            if (!errorMessageDiv || !errorContentDiv) return;
+            
+            const titleEl = errorMessageDiv.querySelector('h3');
+            const iconEl = errorMessageDiv.querySelector('i');
+            if (!message) {
+                errorMessageDiv.classList.add('hidden');
+                return;
+            }
+            
+            const isSuccess = type === 'success';
+            const isWarning = type === 'warn';
+            
+            titleEl.textContent = isSuccess ? i18n[uiLang].successTitle : i18n[uiLang].errorTitle;
+            iconEl.className = `fas text-xl ${isSuccess ? 'fa-check-circle text-green-500' : isWarning ? 'fa-exclamation-triangle text-yellow-500' : 'fa-exclamation-circle text-red-500'}`;
+            errorMessageDiv.className = `mt-6 p-4 rounded-xl flex items-start border ${isSuccess ? 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-700' : isWarning ? 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-700' : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-700'}`;
+            titleEl.className = `text-md font-bold ${isSuccess ? 'text-green-800 dark:text-green-200' : isWarning ? 'text-yellow-800 dark:text-yellow-200' : 'text-red-800 dark:text-red-200'}`;
+            errorContentDiv.className = `text-sm mt-2 ${isSuccess ? 'text-green-700 dark:text-green-300' : isWarning ? 'text-yellow-700 dark:text-yellow-300' : 'text-red-700 dark:text-red-300'}`;
+            errorContentDiv.textContent = message;
+            errorMessageDiv.classList.remove('hidden');
+        }
+        
+        function hideError() {
+            if (errorMessageDiv) errorMessageDiv.classList.add('hidden');
+        }
+        
+        function resetUIForNewTranslation() {
+            if (progressContainer) progressContainer.classList.remove('hidden');
+            if (progressBar) progressBar.style.width = '0%';
+            if (progressText) progressText.textContent = `0% ${i18n[uiLang].progressComplete}`;
+            if (chunkStatusSpan) chunkStatusSpan.textContent = '...';
+            if (timeEstimateSpan) timeEstimateSpan.textContent = i18n[uiLang].progressEstimating;
+            
+            hideError();
+            document.getElementById('retry-container')?.remove();
+            if(editorContainer) editorContainer.classList.add('hidden');
+            if(logViewerContainer) logViewerContainer.classList.add('hidden');
+            failedChunksData = [];
+            currentAllTranslatedEntries = [];
+        }
+        
+        function updateProgress(chunkIndex, totalChunks, startTime) {
+            if (!progressContainer || progressContainer.classList.contains('hidden')) return;
+            
+            const currentDisplayChunk = chunkIndex + 1;
+            const progressPercentage = totalChunks > 0 ? Math.round((currentDisplayChunk / totalChunks) * 100) : 0;
+            
+            progressBar.style.width = `${progressPercentage}%`;
+            progressText.textContent = `${progressPercentage}% ${i18n[uiLang].progressComplete}`;
+            chunkStatusSpan.textContent = `${i18n[uiLang].processingChunk} ${currentDisplayChunk}/${totalChunks}`;
+            
+            if (startTime) {
+                timeEstimateSpan.textContent = i18n[uiLang].progressCalculating;
+            } else if (firstChunkTime > 0) {
+                const remainingChunks = totalChunks - currentDisplayChunk;
+                if (remainingChunks > 0) {
+                    const estimatedRemainingTime = remainingChunks * firstChunkTime;
+                    const minutes = Math.floor(estimatedRemainingTime / 60);
+                    const seconds = Math.floor(estimatedRemainingTime % 60);
+                    timeEstimateSpan.textContent = `~${minutes}m ${seconds}s ${i18n[uiLang].progressRemaining}`;
+                } else {
+                    timeEstimateSpan.textContent = i18n[uiLang].progressComplete;
+                }
+            }
+        }
+        
+        // --- LOGGING UTILITY ---
+        function clearLog() {
+            if (logOutput) logOutput.innerHTML = '';
+        }
+        
+        function logMessage(message, type = 'info') {
+            if (!logOutput) return;
+            
+            const now = new Date();
+            const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            const p = document.createElement('p');
+            let iconClass = 'fas fa-info-circle text-blue-400';
+            let messageColor = 'text-gray-300';
+            
+            if (type === 'success') {
+                iconClass = 'fas fa-check-circle text-green-400';
+                messageColor = 'text-green-300';
+            } else if (type === 'warn') {
+                iconClass = 'fas fa-exclamation-triangle text-yellow-400';
+                messageColor = 'text-yellow-300';
+            } else if (type === 'error') {
+                iconClass = 'fas fa-times-circle text-red-400';
+                messageColor = 'text-red-300';
+            }
+            
+            p.innerHTML = `<span class="text-gray-500">${timestamp}</span> <i class="${iconClass} mx-2"></i> <span class="${messageColor}">${message}</span>`;
+            logOutput.appendChild(p);
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+        
+        // --- MODAL MANAGEMENT ---
+        let resolveModalPromise = null;
+        
+        function showModelSwitchModal(failedModel, failedApiKey) {
+            return new Promise((resolve) => {
+                resolveModalPromise = resolve;
+                
+                const modalMessage = modelSwitchModal.querySelector('#modal-message');
+                modalMessage.innerHTML = `You have reached your daily request limit for the model <strong>"${failedModel}"</strong> with the selected API key. Please choose a different combination to continue.`;
+                
+                modalComboSelect.innerHTML = '';
+                let availableOptions = 0;
+                
+                // Populate the combo dropdown with all valid Key/Model combinations
+                savedApiKeys.forEach(key => {
+                    AVAILABLE_MODELS.forEach(model => {
+                        // The only invalid combination is the one that just failed.
+                        if (key.value === failedApiKey && model === failedModel) {
+                            return; // Skip this option
+                        }
+                        
+                        const option = document.createElement('option');
+                        // The value stores both key and model, separated by a pipe
+                        option.value = `${key.value}|${model}`;
+                        option.textContent = `${key.name} (${model})`;
+                        modalComboSelect.appendChild(option);
+                        availableOptions++;
+                    });
+                });
+                
+                if (availableOptions === 0) {
+                    modalComboSelect.innerHTML = `<option value="">No other combinations available</option>`;
+                    modalSwitchBtn.disabled = true;
+                } else {
+                    modalSwitchBtn.disabled = false;
+                }
+                
+                modelSwitchModal.classList.remove('hidden');
+                setTimeout(() => {
+                    modelSwitchDialog.classList.remove('opacity-0', 'scale-95');
+                    modelSwitchDialog.classList.add('opacity-100', 'scale-100');
+                }, 10);
+            });
+        }
+        
+        function hideModal() {
+            modelSwitchDialog.classList.remove('opacity-100', 'scale-100');
+            modelSwitchDialog.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                modelSwitchModal.classList.add('hidden');
+                if (resolveModalPromise) {
+                    resolveModalPromise(null);
+                    resolveModalPromise = null;
+                }
+            }, 200);
+        }
+        
+        // --- API KEY MANAGEMENT ---
+        function loadApiKeys() {
+            savedApiKeys = JSON.parse(localStorage.getItem('apiKeys') || '[]');
+            const lastSelectedKey = localStorage.getItem('selectedApiKey');
+            apiKeySelect.innerHTML = '';
+            
+            if (savedApiKeys.length === 0) {
+                apiKeySelect.innerHTML = `<option value="">${i18n[uiLang].noKeysAdded}</option>`;
+                currentApiKey = '';
+            } else {
+                savedApiKeys.forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key.value;
+                    option.textContent = key.name;
+                    if (key.value === lastSelectedKey) {
+                        option.selected = true;
+                    }
+                    apiKeySelect.appendChild(option);
+                });
+                
+                if (!apiKeySelect.value && apiKeySelect.options.length > 0) {
+                    apiKeySelect.options[0].selected = true;
+                }
+                
+                currentApiKey = apiKeySelect.value;
+            }
+            
+            deleteKeyBtn.disabled = savedApiKeys.length === 0;
+            checkStep1Completion();
+        }
+        
+        function saveApiKeys() {
+            localStorage.setItem('apiKeys', JSON.stringify(savedApiKeys));
+        }
+        
+        function handleAddKey() {
+            const name = newKeyNameInput.value.trim();
+            const value = newKeyValueInput.value.trim();
+            
+            if (!name || !value) {
+                showError(i18n[uiLang].errorRequired);
+                return;
+            }
+            
+            if (savedApiKeys.some(key => key.value === value)) {
+                showError(i18n[uiLang].errorKeyExists);
+                return;
+            }
+            
+            savedApiKeys.push({ name, value });
+            saveApiKeys();
+            localStorage.setItem('selectedApiKey', value);
+            
+            newKeyNameInput.value = '';
+            newKeyValueInput.value = '';
+            loadApiKeys();
+            hideError();
+        }
+        
+        function handleDeleteKey() {
+            const selectedValue = apiKeySelect.value;
+            if (!selectedValue) return;
+            
+            const keyToDelete = savedApiKeys.find(key => key.value === selectedValue);
+            const confirmMsg = i18n[uiLang].deleteKeyConfirm.replace('{keyName}', keyToDelete.name);
+            
+            if (confirm(confirmMsg)) {
+                savedApiKeys = savedApiKeys.filter(key => key.value !== selectedValue);
+                saveApiKeys();
+                
+                if (localStorage.getItem('selectedApiKey') === selectedValue) {
+                    localStorage.removeItem('selectedApiKey');
+                }
+                
+                loadApiKeys();
+            }
+        }
+        
+        function handleSelectKey() {
+            currentApiKey = apiKeySelect.value;
+            localStorage.setItem('selectedApiKey', currentApiKey);
+            checkStep1Completion();
+        }
+        
+        // --- PDF PARSING, TRANSLATION, and CORE LOGIC ---
+        function clearTranslationMemory() {
+            if (confirm(i18n[uiLang].clearMemoryConfirm)) {
+                translationMemory = {};
+                localStorage.removeItem('translationMemory');
+                alert(i18n[uiLang].clearMemorySuccess);
+            }
+        }
+        
+        function findInTranslationMemory(text, lang) {
+            return translationMemory[lang]?.[text.trim()];
+        }
+        
+        function updateTranslationMemory(sourceText, translatedText, lang) {
+            if (!sourceText || !translatedText) return;
+            
+            const trimmedSource = sourceText.trim();
+            if (!trimmedSource) return;
+            
+            const trimmedTranslated = translatedText.trim();
+            if (!translationMemory[lang]) translationMemory[lang] = {};
+            translationMemory[lang][trimmedSource] = trimmedTranslated;
+            
+            try {
+                localStorage.setItem('translationMemory', JSON.stringify(translationMemory));
+            } catch (e) { 
+                console.error("Error saving to localStorage:", e); 
+            }
+        }
+        
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            const numPages = pdf.numPages;
+            const pages = [];
+            
+            for (let i = 1; i <= numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const textItems = textContent.items.map(item => item.str).join(' ');
+                pages.push({
+                    pageNumber: i,
+                    text: textItems
+                });
+            }
+            
+            return pages;
+        }
+        
+        function parsePDFContent(pages) {
+            // Split each page into chunks for translation
+            const chunks = [];
+            
+            pages.forEach(page => {
+                // Split page text into paragraphs (double newlines)
+                const paragraphs = page.text.split(/\n\s*\n/);
+                
+                paragraphs.forEach((paragraph, index) => {
+                    if (paragraph.trim()) {
+                        chunks.push({
+                            id: `page${page.pageNumber}_para${index}`,
+                            pageNumber: page.pageNumber,
+                            paragraphIndex: index,
+                            text: paragraph.trim(),
+                            originalText: paragraph.trim()
+                        });
+                    }
+                });
+            });
+            
+            return chunks;
+        }
+        
+        function reconstructPDF(chunks, pages) {
+            // Reconstruct the translated text by page
+            const translatedPages = {};
+            
+            chunks.forEach(chunk => {
+                if (!translatedPages[chunk.pageNumber]) {
+                    translatedPages[chunk.pageNumber] = [];
+                }
+                translatedPages[chunk.pageNumber][chunk.paragraphIndex] = chunk.text;
+            });
+            
+            // Create the final translated content
+            const result = [];
+            
+            Object.keys(translatedPages).sort((a, b) => a - b).forEach(pageNum => {
+                const pageText = translatedPages[pageNum].join('\n\n');
+                result.push({
+                    pageNumber: parseInt(pageNum),
+                    originalText: pages.find(p => p.pageNumber === parseInt(pageNum)).text,
+                    translatedText: pageText
+                });
+            });
+            
+            return result;
+        }
+        
+        function splitIntoChunks(array, chunkCount) {
+            const chunks = [];
+            const size = Math.ceil(array.length / chunkCount);
+            
+            for (let i = 0; i < array.length; i += size) {
+                chunks.push(array.slice(i, i + size));
+            }
+            
+            return chunks;
+        }
+        
+        async function fetchTranslation(chunk, apiKey, targetLang, model, temperature) {
+            if (!chunk || chunk.length === 0) return [];
+            
+            const separator = separatorInput.value.replace(/\\n/g, '\n');
+            const promptTemplate = promptTemplateInput.value;
+            const tone = toneInput.value.trim();
+            
+            const sourceTexts = chunk.map(entry => entry.text);
+            const combinedText = sourceTexts.join(separator);
+            
+            let effectivePrompt = promptTemplate
+                .replace('{LANG}', targetLang)
+                .replace('{TEXT}', combinedText)
+                .replace('{TONE}', tone);
+                
+            if (noCensorCheckbox.checked) {
+                effectivePrompt += '\n\nIMPORTANT: Do not censor or alter any explicit words or profanity in the original text. Translate them directly and accurately.';
+            }
+            
+            const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            let targetUrl = directUrl;
+            
+            if (useProxyCheckbox.checked) {
+                const customProxy = customProxyInput.value.trim();
+                targetUrl = customProxy || proxyUrl; // Use custom if provided, else default
+            }
+            
+            let finalPayload = {
+                contents: [{ parts: [{ text: effectivePrompt }] }],
+                safetySettings: [
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" }, 
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" }, 
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" }, 
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+                ],
+                generationConfig: { temperature }
+            };
+            
+            if (useProxyCheckbox.checked) finalPayload.endpoint = directUrl;
+            
+            const fetchOptions = { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(finalPayload) 
+            };
+            
+            logMessage(`Fetching translation for a sub-chunk of size ${chunk.length} using model "${model}".`);
+            
+            const response = await fetch(targetUrl, fetchOptions);
+            
+            if (!response.ok) {
+                if (response.status === 429) {
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                        const quotaFailure = errorData?.error?.details?.find(d => d["@type"]?.includes("QuotaFailure"));
+                        
+                        if (quotaFailure?.violations?.some(v => v.quotaId?.includes('FreeTier'))) {
+                            throw new Error(`QUOTA_EXHAUSTED ${model} ${apiKey}`);
+                        }
+                        
+                        const retryInfo = errorData?.error?.details?.find(d => d["@type"]?.includes("RetryInfo"));
+                        let waitMs = 61000;
+                        
+                        if (retryInfo?.retryDelay) {
+                            const seconds = parseInt(retryInfo.retryDelay, 10);
+                            if (!isNaN(seconds) && seconds > 0) {
+                                waitMs = (seconds * 1000) + 1000;
+                                logMessage(`Rate limit hit. API suggested a ${seconds}s delay. Waiting...`, 'warn');
+                            }
+                        } else {
+                            logMessage(`Rate limit hit. Waiting for the default ${Math.round(waitMs / 1000)}s...`, 'warn');
+                        }
+                        
+                        throw new Error(`RATE_LIMIT_HIT ${waitMs}`);
+                    } catch (e) {
+                        if (e.message.startsWith('QUOTA_EXHAUSTED')) throw e;
+                        throw new Error(`API error 429: Could not parse error details.`);
+                    }
+                }
+                throw new Error(`API error ${response.status}: ${await response.text()}`);
+            }
+            
+            const data = await response.json();
+            const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (responseText === undefined) throw new Error('Invalid API response structure.');
+            
+            let translatedLines = responseText.trim().split(separator.trim());
+            
+            if (translatedLines.length === chunk.length + 1 && translatedLines[translatedLines.length - 1].trim() === '') {
+                logMessage(`Corrected mismatch: Removed trailing empty line for chunk size ${chunk.length}.`, 'warn');
+                translatedLines.pop();
+            }
+            
+            if (responseText.trim() !== "" && translatedLines.length !== chunk.length) {
+                 const errorMsg = `Line count mismatch. Expected ${chunk.length}, got ${translatedLines.length}.`;
+                 logMessage(errorMsg, 'error');
+                 logMessage(`Problematic response (first 100 chars): "${responseText.substring(0, 100)}..."`);
+                 throw new Error(errorMsg);
+            }
+            
+            logMessage(`Successfully translated sub-chunk of size ${chunk.length}.`, 'success');
+            return translatedLines.map(line => line.trim());
+        }
+        
+        async function translateChunkRecursively(chunk, apiKey, targetLang, model, temperature, requestDelay) {
+            try {
+                return await fetchTranslation(chunk, apiKey, targetLang, model, temperature);
+            } catch (error) {
+                if (error.message.startsWith('RATE_LIMIT_HIT')) {
+                    const waitMs = parseInt(error.message.split(' ')[1], 10);
+                    await new Promise(resolve => setTimeout(resolve, waitMs));
+                    return translateChunkRecursively(chunk, apiKey, targetLang, model, temperature, requestDelay);
+                } else if (error.message.startsWith('QUOTA_EXHAUSTED')) {
+                    const [, failedModel, failedApiKey] = error.message.split(' ');
+                    logMessage(`Daily quota exhausted for model: ${failedModel} with the selected API key.`, 'error');
+                    
+                    const userResponse = await showModelSwitchModal(failedModel, failedApiKey);
+                    
+                    if (userResponse && userResponse.choice === 'switch') {
+                        const { newModel, newApiKey } = userResponse;
+                        
+                        // Set the override for this session
+                        const failureKey = `${failedApiKey}|${failedModel}`;
+                        sessionOverrides[failureKey] = { newApiKey, newModel };
+                        logMessage(`Override stored for session: ${failureKey} -> ${newApiKey}|${newModel}`, 'info');
+                        return translateChunkRecursively(chunk, newApiKey, targetLang, newModel, temperature, requestDelay);
+                    } else {
+                        logMessage('User cancelled translation due to quota exhaustion.', 'warn');
+                        throw new Error('Translation cancelled by user due to model/key quota limit.');
+                    }
+                } else {
+                    logMessage(`A non-recoverable error occurred during translation: ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+        }
+        
+        async function translateChunk(chunk, apiKey, targetLang, model, temperature, requestDelay) {
+            const textsToTranslate = [];
+            const cachedResults = new Map();
+            
+            // Check for session-level overrides before proceeding
+            const failureKey = `${apiKey}|${model}`;
+            const override = sessionOverrides[failureKey];
+            let effectiveApiKey = apiKey;
+            let effectiveModel = model;
+            
+            if (override) {
+                logMessage(`Applying session override for ${failureKey}...`, 'warn');
+                effectiveApiKey = override.newApiKey;
+                effectiveModel = override.newModel;
+            }
+            
+            chunk.forEach((entry, index) => {
+                const cached = findInTranslationMemory(entry.text, targetLang);
+                if (cached) {
+                    cachedResults.set(index, cached);
+                } else {
+                    textsToTranslate.push({ originalIndex: index, ...entry });
+                }
+            });
+            
+            if (textsToTranslate.length === 0) {
+                return Array.from({ length: chunk.length }, (_, i) => cachedResults.get(i));
+            }
+            
+            const translatedTexts = await translateChunkRecursively(textsToTranslate, effectiveApiKey, targetLang, effectiveModel, temperature, requestDelay);
+            
+            translatedTexts.forEach((translatedText, i) => {
+                const originalEntry = textsToTranslate[i];
+                updateTranslationMemory(originalEntry.text, translatedText, targetLang);
+            });
+            
+            const finalTranslations = [];
+            let translatedIndex = 0;
+            
+            for (let i = 0; i < chunk.length; i++) {
+                if (cachedResults.has(i)) {
+                    finalTranslations[i] = cachedResults.get(i);
+                } else {
+                    finalTranslations[i] = translatedTexts[translatedIndex] || chunk[i].text;
+                    translatedIndex++;
+                }
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, requestDelay));
+            return finalTranslations;
+        }
+        
+        async function handleTranslate(event) {
+            event.preventDefault();
+            sessionOverrides = {}; // Reset session overrides at the start of a new translation
+            
+            formContainer.classList.add('hidden');
+            resultsArea.classList.remove('hidden');
+            resetUIForNewTranslation();
+            clearLog();
+            logMessage('Translation process started.');
+            
+            const targetLanguage = langInput.value.trim();
+            currentApiKey = apiKeySelect.value;
+            currentModel = modelSelect.value;
+            currentTemperature = parseFloat(temperatureInput.value);
+            currentRequestDelay = parseInt(requestDelayInput.value, 10) || 4000;
+            currentTargetLangForRetry = targetLanguage;
+            
+            let pdfPages = [];
+            
+            try {
+                logMessage(`Extracting text from PDF...`);
+                pdfPages = await extractTextFromPDF(uploadedFile);
+                logMessage(`Found ${pdfPages.length} pages in the PDF.`);
+                
+                if (pdfPages.length === 0) {
+                    showError(i18n[uiLang].errorNoTranslatableText, 'success');
+                    logMessage('No text found in the PDF. Process finished.', 'success');
+                    return;
+                }
+                
+                currentOriginalFileName = uploadedFile.name.replace(/\.[^/.]+$/, "");
+                
+                logMessage(`Parsing PDF content...`);
+                const allParsedEntries = parsePDFContent(pdfPages);
+                logMessage(`Found ${allParsedEntries.length} paragraphs to translate.`);
+                
+                // Store original text for each entry
+                allParsedEntries.forEach(entry => { 
+                    if (entry.text) entry.text_original = entry.text; 
+                });
+                
+                const translatableEntries = allParsedEntries.filter(e => e.text?.trim());
+                logMessage(`${translatableEntries.length} paragraphs contain text to be translated.`);
+                
+                if (translatableEntries.length === 0) {
+                    currentAllTranslatedEntries = reconstructPDF([], pdfPages);
+                    populateEditor();
+                    showError(i18n[uiLang].errorNoTranslatableText, 'success');
+                    logMessage('No translatable text found. Process finished.', 'success');
+                    return;
+                }
+                
+                let chunkCount;
+                const chunkStrategy = document.querySelector('input[name="chunk_strategy"]:checked').value;
+                
+                switch (chunkStrategy) {
+                    case 'auto':
+                        const idealLinesPerChunk = 50;
+                        chunkCount = Math.ceil(translatableEntries.length / idealLinesPerChunk);
+                        logMessage(`Automatic strategy: Calculated ${chunkCount} chunks for ${translatableEntries.length} paragraphs.`, 'info');
+                        break;
+                    case 'manual':
+                        chunkCount = Math.ceil(parseInt(chunkCountManualInput.value, 10)) || 20;
+                        logMessage(`Manual strategy: Using ${chunkCount} chunks.`, 'info');
+                        break;
+                    default:
+                        chunkCount = 20;
+                        logMessage(`Default strategy: Using ${chunkCount} chunks.`, 'info');
+                        break;
+                }
+                
+                const chunks = splitIntoChunks(translatableEntries, chunkCount);
+                const totalChunks = chunks.length;
+                logMessage(`Splitting into ${totalChunks} actual chunks for processing.`);
+                
+                const translatedTextMap = new Map();
+                const startTime = performance.now();
+                firstChunkTime = 0;
+                
+                updateProgress(-1, totalChunks, startTime);
+                
+                for (let i = 0; i < totalChunks; i++) {
+                    updateProgress(i, totalChunks, i === 0 ? startTime : null);
+                    
+                    try {
+                        const chunkStartTime = performance.now();
+                        const translatedTexts = await translateChunk(chunks[i], currentApiKey, targetLanguage, currentModel, currentTemperature, currentRequestDelay);
+                        
+                        if (i === 0 && totalChunks > 1) {
+                            firstChunkTime = (performance.now() - chunkStartTime) / 1000;
+                            logMessage(`First chunk took ${firstChunkTime.toFixed(1)}s. Estimating remaining time.`, 'info');
+                            updateProgress(i, totalChunks, null);
+                        }
+                        
+                        chunks[i].forEach((entry, idx) => translatedTextMap.set(entry, translatedTexts[idx] || entry.text));
+                    } catch (chunkError) {
+                        logMessage(`Chunk ${i + 1} failed permanently: ${chunkError.message}`, 'error');
+                        failedChunksData.push({ index: i, chunkData: chunks[i], reason: chunkError.message });
+                        chunks[i].forEach(entry => translatedTextMap.set(entry, entry.text));
+                    }
+                }
+                
+                // Update all entries with translated text
+                allParsedEntries.forEach(entry => {
+                    const translatable = translatableEntries.find(t => t.id === entry.id);
+                    if (translatable && translatedTextMap.has(translatable)) {
+                        entry.text = translatedTextMap.get(translatable);
+                    }
+                });
+                
+                // Reconstruct the PDF pages with translated text
+                currentAllTranslatedEntries = reconstructPDF(allParsedEntries, pdfPages);
+                
+                logMessage('All chunks processed. Populating editor.');
+                populateEditor();
+                
+                if (failedChunksData.length > 0) {
+                    const msg = `Translation finished with ${failedChunksData.length} failed chunk(s). Edits can be made before downloading.`;
+                    showError(msg, 'warn');
+                    logMessage(msg, 'warn');
+                    displayRetryButtons();
+                } else {
+                    showError(i18n[uiLang].successText, 'success');
+                    logMessage('Translation successful!', 'success');
+                }
+            } catch (error) {
+                progressContainer.classList.add('hidden');
+                logMessage(`A critical error occurred: ${error.message}`, 'error');
+                showError(i18n[uiLang].errorTranslationFailed.replace('{error}', error.message));
+            }
+        }
+        
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+        
+        function isRtl(text) {
+            const rtlRegex = /[\u0600-\u06FF\u0590-\u05FF]/; // Arabic, Persian, Hebrew characters
+            return rtlRegex.test(text);
+        }
+        
+        function isLanguageRtl(langName) {
+            const lowerLang = langName.toLowerCase();
+            const rtlKeywords = ['persian', 'farsi', 'arabic', 'hebrew', 'urdu', 'pashto', 'sindhi'];
+            return rtlKeywords.some(keyword => lowerLang.includes(keyword));
+        }
+        
+        function populateEditor() {
+            if (!editorTbody) return;
+            
+            editorTbody.innerHTML = '';
+            
+            const targetLanguage = langInput.value.trim();
+            const isTargetRtl = isLanguageRtl(targetLanguage);
+            
+            // Set header alignment based on UI language
+            const headers = editorContainer.querySelectorAll('thead th');
+            headers.forEach(th => {
+                th.style.textAlign = (uiLang === 'fa') ? 'right' : 'left';
+            });
+            headers[0].style.textAlign = 'center'; // Keep '#' column centered
+            headers[headers.length-1].style.textAlign = 'center'; // Keep 'Action' column centered
+            
+            currentAllTranslatedEntries.forEach((entry, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200';
+                tr.dataset.index = index;
+                
+                const originalText = entry.originalText || '';
+                const translatedText = entry.translatedText || '';
+                
+                const isOriginalRtl = isRtl(originalText);
+                
+                tr.innerHTML = `
+                    <td class="px-4 py-2 text-center font-medium text-gray-900 dark:text-white">Page ${entry.pageNumber}</td>
+                    <td class="px-6 py-2 whitespace-pre-wrap" style="direction: ${isOriginalRtl ? 'rtl' : 'ltr'}; text-align: ${isOriginalRtl ? 'right' : 'left'}; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${originalText}</td>
+                    <td class="px-6 py-2">
+                        <textarea class="w-full p-1 bg-transparent border-0 rounded-md focus:ring-2 focus:ring-primary-500 overflow-hidden" style="direction: ${isTargetRtl ? 'rtl' : 'ltr'}; text-align: ${isTargetRtl ? 'right' : 'left'};" rows="3">${translatedText}</textarea>
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <button class="retranslate-btn text-gray-400 hover:text-primary-500 transition-colors" title="Retranslate this page">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </td>
+                `;
+                
+                const textarea = tr.querySelector('textarea');
+                textarea.addEventListener('input', function() {
+                    autoResizeTextarea(this);
+                    const entryIndex = this.closest('tr').dataset.index;
+                    currentAllTranslatedEntries[entryIndex].translatedText = this.value;
+                });
+                
+                editorTbody.appendChild(tr);
+                setTimeout(() => autoResizeTextarea(textarea), 0);
+            });
+            
+            progressContainer.classList.add('hidden');
+            editorContainer.classList.remove('hidden');
+        }
+        
+        function generateDownloadFromEditor() {
+            try {
+                const targetLang = currentTargetLangForRetry || langInput.value.trim();
+                
+                // Create a text file with all translated pages
+                let content = '';
+                
+                currentAllTranslatedEntries.forEach(entry => {
+                    content += `=== Page ${entry.pageNumber} ===\n\n`;
+                    content += `${entry.translatedText}\n\n`;
+                });
+                
+                const blob = new Blob([`\uFEFF${content}`], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const downloadFileName = `${currentOriginalFileName}_${targetLang}.txt`;
+                
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = downloadFileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } catch (error) {
+                console.error("Error generating download link:", error);
+                showError("Could not generate the download file.");
+            }
+        }
+        
+        function displayRetryButtons() {
+            if (failedChunksData.length === 0) return;
+            
+            let retryContainer = document.getElementById('retry-container');
+            if (!retryContainer) {
+                retryContainer = document.createElement('div');
+                retryContainer.id = 'retry-container';
+                retryContainer.className = 'mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 rounded-lg';
+                editorContainer.insertAdjacentElement('afterend', retryContainer);
+            }
+            
+            retryContainer.innerHTML = `<p class="text-lg font-medium text-blue-800 dark:text-blue-200 mb-3">${i18n[uiLang].retryFailed}</p>`;
+            
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'flex flex-wrap gap-2';
+            
+            failedChunksData.sort((a,b)=>a.index-b.index).forEach(failedChunk => {
+                const button = document.createElement('button');
+                button.className = 'px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md';
+                button.dataset.chunkIndex = failedChunk.index;
+                button.textContent = `${i18n[uiLang].retryButton} ${failedChunk.index + 1}`;
+                button.addEventListener('click', handleManualRetry);
+                buttonsContainer.appendChild(button);
+            });
+            
+            retryContainer.appendChild(buttonsContainer);
+        }
+        
+        async function handleManualRetry(event) {
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i> ${i18n[uiLang].retryingButton}`;
+            
+            const internalChunkIndex = parseInt(button.dataset.chunkIndex, 10);
+            const failedChunkInfo = failedChunksData.find(fc => fc.index === internalChunkIndex);
+            
+            if (!failedChunkInfo) return;
+            
+            try {
+                const translatedTexts = await translateChunk(failedChunkInfo.chunkData, currentApiKey, currentTargetLangForRetry, currentModel, currentTemperature, currentRequestDelay);
+                
+                const retriedMap = new Map();
+                failedChunkInfo.chunkData.forEach((entry, idx) => {
+                    retriedMap.set(entry, translatedTexts[idx] || entry.text);
+                });
+                
+                // Update the translated entries
+                failedChunkInfo.chunkData.forEach(entry => {
+                    const translatedEntry = currentAllTranslatedEntries.find(e => 
+                        e.pageNumber === entry.pageNumber && e.paragraphIndex === entry.paragraphIndex
+                    );
+                    
+                    if (translatedEntry && retriedMap.has(entry)) {
+                        translatedEntry.text = retriedMap.get(entry);
+                    }
+                });
+                
+                // Reconstruct the PDF pages
+                const pdfPages = currentAllTranslatedEntries.map(entry => ({
+                    pageNumber: entry.pageNumber,
+                    text: entry.originalText
+                }));
+                
+                currentAllTranslatedEntries = reconstructPDF(
+                    currentAllTranslatedEntries.map(entry => ({
+                        id: `page${entry.pageNumber}_para${entry.paragraphIndex}`,
+                        pageNumber: entry.pageNumber,
+                        paragraphIndex: entry.paragraphIndex,
+                        text: entry.text,
+                        originalText: entry.originalText
+                    })),
+                    pdfPages
+                );
+                
+                failedChunksData = failedChunksData.filter(fc => fc.index !== internalChunkIndex);
+                showError(`Chunk ${internalChunkIndex + 1} successfully translated!`, 'success');
+                button.remove();
+                populateEditor();
+                
+                if (failedChunksData.length === 0) {
+                    document.getElementById('retry-container')?.remove();
+                    showError(i18n[uiLang].successText, 'success');
+                }
+            } catch (retryError) {
+                showError(`Retry failed for Chunk ${internalChunkIndex + 1}: ${retryError.message}`);
+                button.disabled = false;
+                button.textContent = `${i18n[uiLang].retryButton} ${internalChunkIndex + 1}`;
+            }
+        }
+        
+        // --- FEATURE FUNCTIONS ---
+        // 1. Individual Page Retranslation
+        async function handleIndividualRetranslate(button) {
+            const icon = button.querySelector('i');
+            const tr = button.closest('tr');
+            
+            if (!tr) {
+                console.error("Could not find parent row for retranslate button.");
+                return;
+            }
+            
+            const entryIndex = parseInt(tr.dataset.index, 10);
+            const entryData = currentAllTranslatedEntries[entryIndex];
+            const originalText = entryData.originalText;
+            
+            if (!originalText) {
+                showError("No original text found for this page.");
+                return;
+            }
+            
+            // Set loading state
+            icon.classList.add('fa-spin');
+            button.disabled = true;
+            
+            try {
+                // Create a chunk with just this page's text
+                const chunk = [{
+                    id: `page${entryData.pageNumber}_retranslate`,
+                    pageNumber: entryData.pageNumber,
+                    paragraphIndex: 0,
+                    text: originalText,
+                    originalText: originalText
+                }];
+                
+                const translatedLines = await translateChunkRecursively(
+                    chunk, 
+                    currentApiKey, 
+                    currentTargetLangForRetry, 
+                    currentModel, 
+                    currentTemperature, 
+                    0
+                );
+                
+                if (translatedLines && translatedLines.length > 0) {
+                    const newText = translatedLines[0];
+                    const textarea = tr.querySelector('textarea');
+                    textarea.value = newText;
+                    currentAllTranslatedEntries[entryIndex].translatedText = newText;
+                    updateTranslationMemory(originalText, newText, currentTargetLangForRetry);
+                    autoResizeTextarea(textarea);
+                    logMessage(`Successfully re-translated page #${entryData.pageNumber}.`, 'success');
+                } else {
+                    throw new Error("API returned no translation.");
+                }
+            } catch (error) {
+                logMessage(`Failed to re-translate page #${entryData.pageNumber}: ${error.message}`, 'error');
+                showError(`Failed to re-translate page: ${error.message}`);
+            } finally {
+                // Revert loading state
+                icon.classList.remove('fa-spin');
+                button.disabled = false;
+            }
+        }
+        
+        // 2. Find and Replace
+        function showFindReplaceModal() {
+            findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: '' }; // Reset state
+            findReplaceFeedback.textContent = '';
+            findReplaceModal.classList.remove('hidden');
+            
+            setTimeout(() => {
+                findReplaceDialog.classList.remove('opacity-0', 'scale-95');
+                findReplaceDialog.classList.add('opacity-100', 'scale-100');
+                findInput.focus();
+            }, 10);
+        }
+        
+        function hideFindReplaceModal() {
+            findReplaceDialog.classList.remove('opacity-100', 'scale-100');
+            findReplaceDialog.classList.add('opacity-0', 'scale-95');
+            
+            setTimeout(() => {
+                findReplaceModal.classList.add('hidden');
+            }, 200);
+        }
+        
+        function handleFindNext() {
+            const query = findInput.value;
+            if (!query) {
+                findReplaceFeedback.textContent = i18n[uiLang].errorFindText;
+                return;
+            }
+            
+            // If query changed, reset search
+            if (query !== findState.currentQuery) {
+                findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: query };
+            }
+            
+            const rows = Array.from(editorTbody.querySelectorAll('tr[data-index]'));
+            const isCaseSensitive = caseSensitiveCheckbox.checked;
+            
+            for (let i = 0; i < rows.length; i++) {
+                // Start from the beginning or the next row
+                let rowIndex = (findState.lastFoundRow + i) % rows.length;
+                
+                // For the first iteration (i=0), start from the next position
+                if(i === 0 && findState.lastFoundRow !== -1) {
+                    rowIndex = findState.lastFoundRow;
+                }
+                
+                const row = rows[rowIndex];
+                const textarea = row.querySelector('textarea');
+                const text = textarea.value;
+                const searchFrom = (rowIndex === findState.lastFoundRow) ? findState.lastFoundPos + 1 : 0;
+                
+                const pos = isCaseSensitive ? 
+                    text.indexOf(query, searchFrom) : 
+                    text.toLowerCase().indexOf(query.toLowerCase(), searchFrom);
+                    
+                if (pos !== -1) {
+                    findState.lastFoundRow = rowIndex;
+                    findState.lastFoundPos = pos;
+                    
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    textarea.focus();
+                    textarea.setSelectionRange(pos, pos + query.length);
+                    
+                    findReplaceFeedback.textContent = '';
+                    return;
+                }
+            }
+            
+            findReplaceFeedback.textContent = i18n[uiLang].errorFindEnd;
+            findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: query }; // Reset for next search
+        }
+        
+        function handleReplace() {
+            const rows = Array.from(editorTbody.querySelectorAll('tr[data-index]'));
+            if (findState.lastFoundRow === -1 || !findInput.value) {
+                handleFindNext(); // If nothing is selected, find first
+                return;
+            }
+            
+            const row = rows[findState.lastFoundRow];
+            if (!row) return;
+            
+            const textarea = row.querySelector('textarea');
+            const query = findInput.value;
+            const replacement = replaceInput.value;
+            const selectionStart = textarea.selectionStart;
+            const selectionEnd = textarea.selectionEnd;
+            
+            // Check if the current selection matches the find query
+            const selectedText = textarea.value.substring(selectionStart, selectionEnd);
+            const queryToCheck = caseSensitiveCheckbox.checked ? query : query.toLowerCase();
+            const selectedTextToCheck = caseSensitiveCheckbox.checked ? selectedText : selectedText.toLowerCase();
+            
+            if (selectedTextToCheck === queryToCheck) {
+                textarea.value = textarea.value.substring(0, selectionStart) + replacement + textarea.value.substring(selectionEnd);
+                textarea.dispatchEvent(new Event('input')); // Trigger update
+                
+                // Adjust find state to the end of the replaced text
+                findState.lastFoundPos = selectionStart + replacement.length - 1;
+            }
+            
+            handleFindNext();
+        }
+        
+        function handleReplaceAll() {
+            const query = findInput.value;
+            if (!query) {
+                findReplaceFeedback.textContent = i18n[uiLang].errorFindText;
+                return;
+            }
+            
+            const replacement = replaceInput.value;
+            const flags = caseSensitiveCheckbox.checked ? 'g' : 'gi';
+            const regex = new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), flags);
+            let replacementsCount = 0;
+            
+            editorTbody.querySelectorAll('tr[data-index] textarea').forEach(textarea => {
+                const originalValue = textarea.value;
+                if (originalValue.match(regex)) {
+                    const newValue = originalValue.replace(regex, replacement);
+                    replacementsCount += (originalValue.match(regex) || []).length;
+                    textarea.value = newValue;
+                    textarea.dispatchEvent(new Event('input')); // Trigger update and resize
+                }
+            });
+            
+            findReplaceFeedback.textContent = `Replaced ${replacementsCount} occurrence(s).`;
+            findState = { lastFoundRow: -1, lastFoundPos: -1, currentQuery: '' }; // Reset search
+        }
+        
+        // --- EVENT LISTENERS INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Populate DOM references
+            htmlElement = document.documentElement;
+            languageToggle = document.getElementById('languageToggle');
+            clearMemoryButton = document.getElementById('clear-memory-button');
+            translateForm = document.getElementById('translate-form');
+            dropzoneElement = document.getElementById("dropzone-upload");
+            useProxyCheckbox = document.getElementById('useProxyCheckbox');
+            togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            langInput = document.getElementById('lang-input');
+            modelSelect = document.getElementById('model');
+            temperatureInput = document.getElementById('temperature');
+            progressContainer = document.getElementById('progress-container');
+            progressBar = document.getElementById('progress');
+            progressText = document.getElementById('progress-text');
+            chunkStatusSpan = document.getElementById('chunk-status');
+            timeEstimateSpan = document.getElementById('time-estimate');
+            errorMessageDiv = document.getElementById('error-message');
+            errorContentDiv = errorMessageDiv.querySelector('.text-sm');
+            submitButton = document.getElementById('submit-button');
+            formContainer = document.getElementById('form-container');
+            resultsArea = document.getElementById('results-area');
+            stepSections = document.querySelectorAll('[data-step]');
+            stepIndicators = document.querySelectorAll('[id^="step-"][id$="-indicator"]');
+            nextToStep2Btn = document.getElementById('next-to-step-2');
+            nextToStep3Btn = document.getElementById('next-to-step-3');
+            backToStep1Btn = document.getElementById('back-to-step-1');
+            backToStep2Btns = document.querySelectorAll('#back-to-step-2');
+            fileInputContainer = document.getElementById('file-input-container');
+            fileFeedbackDiv = document.getElementById('file-feedback');
+            fileNameSpan = document.getElementById('file-name');
+            removeFileBtn = document.getElementById('remove-file');
+            editorContainer = document.getElementById('editor-container');
+            editorTbody = document.getElementById('editor-tbody');
+            downloadEditedBtn = document.getElementById('download-edited-btn');
+            startNewFromEditorBtn = document.getElementById('start-new-from-editor-btn');
+            logViewerContainer = document.getElementById('log-viewer-container');
+            logOutput = document.getElementById('log-output');
+            toggleLogBtn = document.getElementById('toggle-log-btn');
+            copyLogBtn = document.getElementById('copy-log-btn');
+            clearLogBtn = document.getElementById('clear-log-btn');
+            chunkStrategyRadios = document.querySelectorAll('input[name="chunk_strategy"]');
+            manualChunkContainer = document.getElementById('manual_chunk_container');
+            chunkCountManualInput = document.getElementById('chunk_count_manual');
+            requestDelayInput = document.getElementById('request-delay');
+            modelSwitchModal = document.getElementById('model-switch-modal');
+            modelSwitchDialog = document.getElementById('model-switch-dialog');
+            modalSwitchBtn = document.getElementById('modal-switch-btn');
+            modalCancelBtn = document.getElementById('modal-cancel-btn');
+            modalComboSelect = document.getElementById('modal-combo-select');
+            separatorInput = document.getElementById('separator-input');
+            promptTemplateInput = document.getElementById('prompt-template-input');
+            noCensorCheckbox = document.getElementById('no-censor-checkbox');
+            toneInput = document.getElementById('tone-input');
+            apiKeySelect = document.getElementById('api-key-select');
+            newKeyNameInput = document.getElementById('new-key-name');
+            newKeyValueInput = document.getElementById('new-key-value');
+            addKeyBtn = document.getElementById('add-key-btn');
+            deleteKeyBtn = document.getElementById('delete-key-btn');
+            customProxyContainer = document.getElementById('custom-proxy-container');
+            customProxyInput = document.getElementById('custom-proxy-input');
+            
+            // Populate new DOM references
+            findReplaceBtn = document.getElementById('find-replace-btn');
+            findReplaceModal = document.getElementById('find-replace-modal');
+            findReplaceDialog = document.getElementById('find-replace-dialog');
+            findReplaceCloseBtn = document.getElementById('find-replace-close-btn');
+            findInput = document.getElementById('find-input');
+            replaceInput = document.getElementById('replace-input');
+            caseSensitiveCheckbox = document.getElementById('case-sensitive-checkbox');
+            findNextBtn = document.getElementById('find-next-btn');
+            replaceBtn = document.getElementById('replace-btn');
+            replaceAllBtn = document.getElementById('replace-all-btn');
+            findReplaceFeedback = document.getElementById('find-replace-feedback');
+            
+            // Initial Page Setup
+            loadApiKeys();
+            updateLanguage(localStorage.getItem('language') === 'fa' ? 'fa' : 'en');
+            goToStep(1);
+            
+            // Attach Event Listeners
+            languageToggle.addEventListener('click', () => updateLanguage(uiLang === 'en' ? 'fa' : 'en'));
+            clearMemoryButton.addEventListener('click', clearTranslationMemory);
+            togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+            
+            // API Key Management Listeners
+            addKeyBtn.addEventListener('click', handleAddKey);
+            deleteKeyBtn.addEventListener('click', handleDeleteKey);
+            apiKeySelect.addEventListener('change', handleSelectKey);
+            
+            // Step Navigation
+            nextToStep2Btn.addEventListener('click', () => goToStep(2));
+            nextToStep3Btn.addEventListener('click', () => goToStep(3));
+            backToStep1Btn.addEventListener('click', () => goToStep(1));
+            backToStep2Btns.forEach(btn => btn.addEventListener('click', () => goToStep(2)));
+            
+            // File Upload
+            removeFileBtn.addEventListener('click', () => {
+                if (myDropzone) myDropzone.removeAllFiles(true);
+            });
+            
+            // Form Submission
+            translateForm.addEventListener('submit', handleTranslate);
+            downloadEditedBtn.addEventListener('click', generateDownloadFromEditor);
+            startNewFromEditorBtn.addEventListener('click', resetWizard);
+            
+            // Log Viewer
+            toggleLogBtn.addEventListener('click', () => {
+                const isHidden = logViewerContainer.classList.contains('hidden');
+                logViewerContainer.classList.toggle('hidden', !isHidden);
+            });
+            
+            clearLogBtn.addEventListener('click', clearLog);
+            
+            copyLogBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(logOutput.innerText)
+                    .then(() => {
+                        const originalText = i18n[uiLang].logCopy;
+                        copyLogBtn.querySelector('span').textContent = i18n[uiLang].logCopied;
+                        setTimeout(() => { 
+                            copyLogBtn.querySelector('span').textContent = originalText; 
+                        }, 2000);
+                    });
+            });
+            
+            // Advanced Settings
+            document.getElementById('advanced-settings-toggle').addEventListener('click', function() {
+                const advancedSettings = document.getElementById('advanced-settings');
+                const chevron = this.querySelector('i:last-child');
+                
+                advancedSettings.classList.toggle('hidden');
+                chevron.classList.toggle('rotate-180');
+            });
+            
+            // Chunk Strategy
+            chunkStrategyRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    manualChunkContainer.classList.toggle('hidden', e.target.value !== 'manual');
+                });
+            });
+            
+            // Proxy Settings
+            useProxyCheckbox.addEventListener('change', (e) => {
+                customProxyContainer.classList.toggle('hidden', !e.target.checked);
+            });
+            
+            // Model Switch Modal
+            modalSwitchBtn.addEventListener('click', () => {
+                if (resolveModalPromise) {
+                    const selectedValue = modalComboSelect.value;
+                    if (selectedValue) {
+                        const [newApiKey, newModel] = selectedValue.split('|');
+                        resolveModalPromise({ choice: 'switch', newModel, newApiKey });
+                    } else {
+                         resolveModalPromise({ choice: 'cancel' });
+                    }
+                }
+                resolveModalPromise = null;
+                hideModal();
+            });
+            
+            modalCancelBtn.addEventListener('click', () => {
+                if (resolveModalPromise) {
+                    resolveModalPromise({ choice: 'cancel' });
+                }
+                resolveModalPromise = null;
+                hideModal();
+            });
+            
+            modelSwitchModal.addEventListener('click', (e) => {
+                if (e.target === modelSwitchModal) {
+                     hideModal();
+                }
+            });
+            
+            // File Upload Configuration
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.pdf';
+            fileInput.style.display = 'none';
+            
+            document.getElementById('choose-file-btn').addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+            
+            // Drag and Drop
+            fileInputContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileInputContainer.classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+            });
+            
+            fileInputContainer.addEventListener('dragleave', () => {
+                fileInputContainer.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+            });
+            
+            fileInputContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileInputContainer.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFileUpload(e.dataTransfer.files[0]);
+                }
+            });
+            
+            function handleFileUpload(file) {
+                if (file.type !== 'application/pdf') {
+                    showError('Please upload a PDF file.');
+                    return;
+                }
+                
+                uploadedFile = file;
+                dropzoneElement.style.display = 'none';
+                fileFeedbackDiv.classList.remove('hidden');
+                fileNameSpan.textContent = file.name;
+                checkStep2Completion();
+            }
+            
+            // Event listeners for features
+            editorTbody.addEventListener('click', (event) => {
+                const retranslateButton = event.target.closest('.retranslate-btn');
+                if (retranslateButton) {
+                    handleIndividualRetranslate(retranslateButton);
+                }
+            });
+            
+            findReplaceBtn.addEventListener('click', showFindReplaceModal);
+            findReplaceCloseBtn.addEventListener('click', hideFindReplaceModal);
+            findReplaceModal.addEventListener('click', (e) => {
+                if (e.target === findReplaceModal) hideFindReplaceModal();
+            });
+            
+            findNextBtn.addEventListener('click', handleFindNext);
+            replaceBtn.addEventListener('click', handleReplace);
+            replaceAllBtn.addEventListener('click', handleReplaceAll);
+            
+            findInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') handleFindNext(); 
+            });
+            
+            replaceInput.addEventListener('keydown', (e) => { 
+                if (e.key === 'Enter') handleReplace(); 
+            });
+        });
+    </script>
+</body>
+</html>
