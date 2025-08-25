@@ -897,7 +897,6 @@ Original Text:
                         const responseText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
             if (responseText === undefined) throw new Error('Invalid API response structure. No text found.');
             
-            const separator = separatorInput.value.replace(/\\n/g, '\n');
             const receivedLines = responseText.trim().split(separator.trim());
             const finalTranslations = [];
 
@@ -929,18 +928,8 @@ Original Text:
 
             logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
             return finalTranslations; 
-                }
-
-            } else {
-                // If line counts match, assign them one-to-one
-                for (let i = 0; i < chunk.length; i++) {
-                    finalTranslations.push(receivedLines[i] ? receivedLines[i].trim() : '');
-                }
-            }
-
-            logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
-            return finalTranslations;
         }
+        
 
         async function translateChunkRecursively(chunk, apiKey, targetLang, model, temperature, requestDelay) {
             try { return await fetchTranslation(chunk, apiKey, targetLang, model, temperature); } catch (error) {
