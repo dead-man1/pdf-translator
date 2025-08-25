@@ -899,7 +899,7 @@ Original Text:
             const receivedLines = responseText.trim().split(separator.trim());
             const finalTranslations = [];
             if (receivedLines.length !== chunk.length && responseText.trim() !== "") logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Using original text for missing/extra lines.`, 'warn');
-            for (let i = 0; i < chunk.length; i++) { finalTranslations.push((receivedLines[i] && receivedLines[i].trim() !== '') ? receivedLines[i].trim() : chunk[i].text); }
+            for (let i = 0; i < chunk.length; i++) { finalTranslations.push(receivedLines[i] ? receivedLines[i].trim() : ''); }
             logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
             return finalTranslations;
         }
