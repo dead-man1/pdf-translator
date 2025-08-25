@@ -898,8 +898,25 @@ Original Text:
             if (responseText === undefined) throw new Error('Invalid API response structure. No text found.');
             const receivedLines = responseText.trim().split(separator.trim());
             const finalTranslations = [];
-            if (receivedLines.length !== chunk.length && responseText.trim() !== "") logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Using original text for missing/extra lines.`, 'warn');
-            for (let i = 0; i < chunk.length; i++) { finalTranslations.push(receivedLines[i] ? receivedLines[i].trim() : ''); }
+                        // Check if the AI returned a different number of lines
+            if (receivedLines.length !== chunk.length && responseText.trim() !== "") {
+                logMessage(`Line count mismatch. Expected ${chunk.length}, got ${receivedLines.length}. Merging result into the first line.`, 'warn');
+                
+                // Put the entire AI response in the first line's translation
+                finalTranslations.push(responseText.trim());
+                
+                // Leave the other corresponding lines empty, as they have been merged
+                for (let i = 1; i < chunk.length; i++) {
+                    finalTranslations.push(''); 
+                }
+
+            } else {
+                // If line counts match, assign them one-to-one
+                for (let i = 0; i < chunk.length; i++) {
+                    finalTranslations.push(receivedLines[i] ? receivedLines[i].trim() : '');
+                }
+            }
+
             logMessage(`Successfully processed chunk of size ${chunk.length}.`, 'success');
             return finalTranslations;
         }
